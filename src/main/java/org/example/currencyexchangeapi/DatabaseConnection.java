@@ -28,7 +28,7 @@ public class DatabaseConnection {
         try {
             return ds.getConnection();
         } catch (SQLException e) {
-            throw new DatabaseConnectionException("Error connecting to database", e);
+            throw new DatabaseConnectionException("Failed to connect to the database");
         }
     }
 }

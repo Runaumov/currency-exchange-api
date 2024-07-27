@@ -77,7 +77,7 @@ public class ExchangeRatesServlet extends HttpServlet {
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
 
-        objectMapper.writeValue(resp.getWriter(), requestExchangeRateDto);
+        objectMapper.writeValue(resp.getWriter(), responseExchangeRateDto);
 
     }
 }

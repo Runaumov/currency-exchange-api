@@ -2,7 +2,11 @@ package org.example.currencyexchangeapi.dao;
 
 import org.example.currencyexchangeapi.DatabaseConnection;
 import org.example.currencyexchangeapi.exceptions.DatabaseConnectionException;
+import org.example.currencyexchangeapi.exceptions.ModelAlreadyExistsException;
+import org.example.currencyexchangeapi.exceptions.ModelNotFoundException;
 import org.example.currencyexchangeapi.model.Currency;
+import org.sqlite.SQLiteErrorCode;
+import org.sqlite.SQLiteException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -21,6 +25,11 @@ public class JdbcCurrencyDao implements CurrencyDao {
              PreparedStatement preparedStatement = connection.prepareStatement(sql)
         ){
             ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (!resultSet.next()) {
+                throw new ModelNotFoundException("Database does not contain any records.");
+            }
+
             while (resultSet.next()) {
                 allCurrencies.add(new Currency(resultSet.getLong("id"),
                         resultSet.getString("code"),
@@ -28,7 +37,7 @@ public class JdbcCurrencyDao implements CurrencyDao {
                         resultSet.getString("sign")));
             }
         } catch (SQLException e) {
-            throw new DatabaseConnectionException("Database unavailable", e);
+            throw new DatabaseConnectionException("Database is not responding");
         }
         return allCurrencies;
     }
@@ -42,6 +51,11 @@ public class JdbcCurrencyDao implements CurrencyDao {
         ){
             preparedStatement.setString(1, code);
             ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (!resultSet.next()) {
+                throw new ModelNotFoundException(String.format("Currency '%s' not found in database.", code));
+            }
+
             while (resultSet.next()) {
                 return new Currency(
                         resultSet.getLong("id"),
@@ -51,7 +65,7 @@ public class JdbcCurrencyDao implements CurrencyDao {
                 );
             }
         } catch (SQLException e) {
-            // TO DO
+            throw new DatabaseConnectionException("Database is not responding");
         }
 
         return null;
@@ -66,12 +80,19 @@ public class JdbcCurrencyDao implements CurrencyDao {
             preparedStatement.setString(1, currency.getCode());
             preparedStatement.setString(2, currency.getFullname());
             preparedStatement.setString(3, currency.getSign());
-
             preparedStatement.executeUpdate();
-            //ResultSet resultSet = preparedStatement.executeQuery();
-
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            if (e instanceof SQLiteException) {
+                SQLiteException sqLiteException = (SQLiteException) e;
+                int resultCode = sqLiteException.getResultCode().code;
+                if (resultCode == SQLiteErrorCode.SQLITE_CONSTRAINT_UNIQUE.code) {
+                    throw new ModelAlreadyExistsException(
+                            String.format("Currency '%s' already exists.", currency.getCode())
+                    );
+                }
+            } else {
+                throw new DatabaseConnectionException("Database is not responding");
+            }
         }
     }
 
@@ -85,10 +106,9 @@ public class JdbcCurrencyDao implements CurrencyDao {
             preparedStatement.setString(2, currency.getFullname());
             preparedStatement.setString(3, currency.getSign());
             preparedStatement.setLong(4, currency.getId());
-
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DatabaseConnectionException("Database is not responding");
         }
     }
 
@@ -99,21 +119,15 @@ public class JdbcCurrencyDao implements CurrencyDao {
              PreparedStatement preparedStatement = connection.prepareStatement(sql)
         ){
             preparedStatement.setLong(1, currency.getId());
-
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DatabaseConnectionException("Database is not responding");
         }
     }
 
     public static void main(String[] args) {
-//        Currency zloty = new Currency("PLN", "Zloty", "zł");
-//        JdbcCurrencyDao dao = new JdbcCurrencyDao();
-//        dao.updateCurrency(zloty);
-        JdbcCurrencyDao dao = new JdbcCurrencyDao();
-        String code = "USD";
-        Currency currency = dao.findCode(code);
-        int a = 1;
+        JdbcCurrencyDao jdbcCurrencyDao = new JdbcCurrencyDao();
+        jdbcCurrencyDao.findCode("PSA");
     }
 
 }

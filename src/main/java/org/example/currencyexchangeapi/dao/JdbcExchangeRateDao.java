@@ -1,11 +1,14 @@
 package org.example.currencyexchangeapi.dao;
 
 import org.example.currencyexchangeapi.DatabaseConnection;
+import org.example.currencyexchangeapi.exceptions.DatabaseConnectionException;
+import org.example.currencyexchangeapi.exceptions.ModelAlreadyExistsException;
+import org.example.currencyexchangeapi.exceptions.ModelNotFoundException;
 import org.example.currencyexchangeapi.model.Currency;
 import org.example.currencyexchangeapi.model.ExchangeRate;
+import org.sqlite.SQLiteErrorCode;
+import org.sqlite.SQLiteException;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -32,11 +35,15 @@ public class JdbcExchangeRateDao implements ExchangeDao {
                 "JOIN currencies bc ON er.base_currency_id = bc.id " +
                 "JOIN currencies tc ON er.target_currency_id = tc.id";
         List<ExchangeRate> exchangeRates = new ArrayList<>();
-
         try (Connection connection = DatabaseConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql);
         ) {
             ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (!resultSet.next()) {
+                throw new ModelNotFoundException("Database does not contain any records.");
+            }
+
             while (resultSet.next()) {
                 exchangeRates.add(
                         new ExchangeRate(resultSet.getLong("id"),
@@ -54,7 +61,7 @@ public class JdbcExchangeRateDao implements ExchangeDao {
                 ));
             }
         } catch (SQLException e) {
-            // TO DO
+            throw new DatabaseConnectionException("Database is not responding");
         }
         return exchangeRates;
     }
@@ -82,6 +89,14 @@ public class JdbcExchangeRateDao implements ExchangeDao {
             preparedStatement.setString(1, baseCode);
             preparedStatement.setString(2, targetCode);
             ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (!resultSet.next()) {
+                throw new ModelNotFoundException(
+                        String.format(String.format("Exchange rate '%s'-'%s' not found in database.",
+                                baseCode, targetCode))
+                );
+            }
+
             while (resultSet.next()) {
                 return Optional.of(
                         new ExchangeRate(resultSet.getLong("id"),
@@ -99,14 +114,13 @@ public class JdbcExchangeRateDao implements ExchangeDao {
                 ));
             }
         } catch (SQLException e) {
-            // TO DO
+            throw new DatabaseConnectionException("Database is not responding");
         }
         return Optional.empty(); // проработать
     }
 
     public void saveExchangeRate(ExchangeRate exchangeRate) {
         String sql = "INSERT INTO exchange_rates (base_currency_id, target_currency_id, rate) VALUES (?, ?, ?)";
-
         try (Connection connection = DatabaseConnection.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)
         ) {
@@ -116,14 +130,25 @@ public class JdbcExchangeRateDao implements ExchangeDao {
 
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            // TO DO
+            if (e instanceof SQLiteException) {
+                SQLiteException sqLiteException = (SQLiteException) e;
+                int resultCode = sqLiteException.getResultCode().code;
+                if (resultCode == SQLiteErrorCode.SQLITE_CONSTRAINT_UNIQUE.code) {
+                    throw new ModelAlreadyExistsException(
+                            String.format("Exchange rate '%s' - '%s' already exists.",
+                                    exchangeRate.getBaseCurrency().getCode(),
+                                    exchangeRate.getTargetCurrency().getCode())
+                    );
+                }
+            } else {
+                throw new DatabaseConnectionException("Database is not responding");
+            }
         }
 
     }
 
     public void updateExchangeRate(ExchangeRate exchangeRate) {
         String sql = "UPDATE exchange_rates SET rate=? WHERE id=?";
-
         try (Connection connection = DatabaseConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)
         ) {
@@ -132,7 +157,7 @@ public class JdbcExchangeRateDao implements ExchangeDao {
 
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            // TO DO
+            throw new DatabaseConnectionException("Database is not responding");
         }
     }
 

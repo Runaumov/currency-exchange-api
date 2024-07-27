@@ -33,7 +33,6 @@ public class CurrenciesServlet extends HttpServlet {
         for (Currency currency : currencies) {
             responseCurrencyDto.add(new ResponseCurrencyDto(currency.getId(), currency.getCode(), currency.getFullname(), currency.getSign()));
         }
-
         objectMapper.writeValue(resp.getWriter(), responseCurrencyDto);
 
     }

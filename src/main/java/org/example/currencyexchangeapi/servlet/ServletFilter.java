@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.currencyexchangeapi.exceptions.DatabaseConnectionException;
+import org.example.currencyexchangeapi.exceptions.ModelAlreadyExistsException;
 
 import java.io.IOException;
 
@@ -26,7 +27,11 @@ public class ServletFilter implements Filter {
             filterChain.doFilter(servletRequest, servletResponse);
         } catch (DatabaseConnectionException e) {
             if (servletResponse instanceof HttpServletResponse) {
-                ((HttpServletResponse) servletResponse).setStatus(501);
+                ((HttpServletResponse) servletResponse).setStatus(500);
+            }
+        } catch (ModelAlreadyExistsException e) {
+            if (servletResponse instanceof HttpServletResponse) {
+                ((HttpServletResponse) servletResponse).setStatus(409);
             }
         }
     }

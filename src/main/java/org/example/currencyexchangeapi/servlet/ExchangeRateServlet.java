@@ -41,23 +41,10 @@ public class ExchangeRateServlet extends HttpServlet {
         objectMapper.writeValue(resp.getWriter(), responseExchangeRateDto);
     }
 
-    @Override
-    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String method = req.getMethod();
-        if (method.equalsIgnoreCase("PATCH")) {
-            doPatch(req, resp);
-        } else {
-            super.service(req, resp);
-        }
-    }
-
-
     private void doPatch(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String baseCode = req.getPathInfo().replaceAll("/", "").substring(0, 3);
         String targetCode = req.getPathInfo().replaceAll("/", "").substring(3);
         String parameter = req.getReader().readLine();
-        JdbcCurrencyDao jdbcCurrencyDao = new JdbcCurrencyDao();
-
         String rate = parameter.replace("rate=", "");
 
         RequestExchangeRateDto requestExchangeRateDto = new RequestExchangeRateDto(baseCode, targetCode, rate);
@@ -80,5 +67,15 @@ public class ExchangeRateServlet extends HttpServlet {
         resp.setCharacterEncoding("UTF-8");
 
         objectMapper.writeValue(resp.getWriter(), responseExchangeRateDto);
+    }
+
+    @Override
+    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String method = req.getMethod();
+        if (method.equalsIgnoreCase("PATCH")) {
+            doPatch(req, resp);
+        } else {
+            super.service(req, resp);
+        }
     }
 }
