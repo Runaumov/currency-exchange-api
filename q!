@@ -1,0 +1,24 @@
+[33mcommit 7d6cf40b2935d87be65ae03e59f507cd51d9cd94[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m
+Author: Runaumov <casrunau@gmail.com>
+Date:   Sun Jul 28 19:03:34 2024 +0300
+
+    Added RequestValidator class; refactoring CurrencyServlet and JdbcCurrencyDao
+    
+    :x
+    
+    x
+    
+    :x
+    :wq
+
+[33mcommit 48a7443e15048d1732e966d6ba0a4e50e683c7fe[m[33m ([m[1;31morigin/master[m[33m)[m
+Author: Runaumov <casrunau@gmail.com>
+Date:   Sat Jul 27 22:23:44 2024 +0300
+
+    Added exceptions and throwing exceptions in DAO classes
+
+[33mcommit bfea1c0ce636bc5527e6d5dc262d3be67d2bcb92[m
+Author: Runaumov <casrunau@gmail.com>
+Date:   Sat Jul 27 18:26:39 2024 +0300
+
+    added a project
