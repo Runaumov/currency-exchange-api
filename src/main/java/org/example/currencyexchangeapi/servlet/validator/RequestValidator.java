@@ -2,13 +2,12 @@ package org.example.currencyexchangeapi.servlet.validator;
 
 import org.example.currencyexchangeapi.dto.RequestCurrencyDto;
 import org.example.currencyexchangeapi.exceptions.InvalidRequestException;
-
 import java.util.regex.Pattern;
 
 public class RequestValidator {
 
     private static final Pattern CURRENCY_CODE_PATTERN = Pattern.compile("^[A-Za-z]{3}$");
-    private static final Pattern CURRENCY_FULLNAME_PATTERN = Pattern.compile("^[A-Za-z]+ [A-Za-z]+$");
+    private static final Pattern CURRENCY_FULLNAME_PATTERN = Pattern.compile("^[A-Za-z\\s\\(\\)]+$");
     private static final Pattern CURRENCY_SIGN_PATTERN = Pattern.compile("^[\\p{Sc}A-Za-z]$");
 
     public static void validateCurrency(RequestCurrencyDto requestCurrencyDto) {
@@ -34,4 +33,5 @@ public class RequestValidator {
             throw new InvalidRequestException("Invalid sign name");
         }
     }
+
 }

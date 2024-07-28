@@ -41,7 +41,7 @@ public class CurrenciesServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String code = req.getParameter("code");
-        String fullname = req.getParameter("fullname");
+        String fullname = req.getParameter("name");
         String sign = req.getParameter("sign");
 
         RequestCurrencyDto requestCurrencyDto = new RequestCurrencyDto(code, fullname, sign);
@@ -52,7 +52,7 @@ public class CurrenciesServlet extends HttpServlet {
                 requestCurrencyDto.getFullname(),
                 requestCurrencyDto.getSign())
         );
-        
+
         Currency responseCurrency = jdbcCurrencyDao.findByCode(requestCurrencyDto.getCode());
         ResponseCurrencyDto responseCurrencyDto = new ResponseCurrencyDto(responseCurrency.getId(),
                 responseCurrency.getCode(),
