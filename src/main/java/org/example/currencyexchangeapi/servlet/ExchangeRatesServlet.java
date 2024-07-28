@@ -60,8 +60,8 @@ public class ExchangeRatesServlet extends HttpServlet {
 
         // выглядит сомнительно
         ExchangeRate exchangeRate = new ExchangeRate(
-                jdbcCurrencyDao.findCode(requestExchangeRateDto.getBaseCurrency()),
-                jdbcCurrencyDao.findCode(requestExchangeRateDto.getTargetCurrency()),
+                jdbcCurrencyDao.findByCode(requestExchangeRateDto.getBaseCurrency()),
+                jdbcCurrencyDao.findByCode(requestExchangeRateDto.getTargetCurrency()),
                 new BigDecimal(requestExchangeRateDto.getRate()));
 
         jdbcExchangeRateDao.saveExchangeRate(exchangeRate);

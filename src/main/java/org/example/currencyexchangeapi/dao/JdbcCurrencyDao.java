@@ -43,8 +43,9 @@ public class JdbcCurrencyDao implements CurrencyDao {
     }
 
     @Override
-    public Currency findCode(String code) {
+    public Currency findByCode(String code) {
         String sql = "SELECT * FROM currencies WHERE code=?";
+        Currency currency = new Currency();
 
         try (Connection connection = DatabaseConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)
@@ -54,21 +55,16 @@ public class JdbcCurrencyDao implements CurrencyDao {
 
             if (!resultSet.next()) {
                 throw new ModelNotFoundException(String.format("Currency '%s' not found in database.", code));
-            }
-
-            while (resultSet.next()) {
-                return new Currency(
-                        resultSet.getLong("id"),
-                        resultSet.getString("code"),
-                        resultSet.getString("fullname"),
-                        resultSet.getString("sign")
-                );
+            } else {
+                currency.setId(resultSet.getLong("id"));
+                currency.setCode(resultSet.getString("code"));
+                currency.setFullname(resultSet.getString("fullname"));
+                currency.setSign(resultSet.getString("sign"));
+                return currency;
             }
         } catch (SQLException e) {
             throw new DatabaseConnectionException("Database is not responding");
         }
-
-        return null;
     }
 
     @Override
@@ -127,7 +123,7 @@ public class JdbcCurrencyDao implements CurrencyDao {
 
     public static void main(String[] args) {
         JdbcCurrencyDao jdbcCurrencyDao = new JdbcCurrencyDao();
-        jdbcCurrencyDao.findCode("PSA");
+        jdbcCurrencyDao.findByCode("PSA");
     }
 
 }

@@ -7,7 +7,7 @@ public interface CurrencyDao {
 
     List<Currency> findAll();
 
-    Currency findCode(String code);
+    Currency findByCode(String code);
 
     void saveCurrency(Currency currency);
 

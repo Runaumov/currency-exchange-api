@@ -2,16 +2,13 @@ package org.example.currencyexchangeapi.servlet;
 
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.currencyexchangeapi.exceptions.DatabaseConnectionException;
+import org.example.currencyexchangeapi.exceptions.InvalidRequestException;
 import org.example.currencyexchangeapi.exceptions.ModelAlreadyExistsException;
+import org.example.currencyexchangeapi.exceptions.ModelNotFoundException;
 
 import java.io.IOException;
-
-import static jakarta.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 
 @WebFilter("/*")
 public class ServletFilter implements Filter {
@@ -23,16 +20,19 @@ public class ServletFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+        HttpServletResponse httpServletResponse = (HttpServletResponse) servletResponse;
         try {
+            httpServletResponse.setContentType("application/json");
+            httpServletResponse.setCharacterEncoding("UTF-8");
             filterChain.doFilter(servletRequest, servletResponse);
         } catch (DatabaseConnectionException e) {
-            if (servletResponse instanceof HttpServletResponse) {
-                ((HttpServletResponse) servletResponse).setStatus(500);
-            }
+            ((HttpServletResponse) servletResponse).setStatus(500);
         } catch (ModelAlreadyExistsException e) {
-            if (servletResponse instanceof HttpServletResponse) {
-                ((HttpServletResponse) servletResponse).setStatus(409);
-            }
+            ((HttpServletResponse) servletResponse).setStatus(409);
+        } catch (ModelNotFoundException e) {
+            ((HttpServletResponse) servletResponse).setStatus(404);
+        } catch (InvalidRequestException e) {
+            ((HttpServletResponse) servletResponse).setStatus(400);
         }
     }
 
