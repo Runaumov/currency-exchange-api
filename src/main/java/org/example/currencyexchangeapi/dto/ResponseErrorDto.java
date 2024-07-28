@@ -10,6 +10,5 @@ import lombok.Setter;
 public class ResponseErrorDto {
 
     private String message;
-    private int status;
-    
+
 }

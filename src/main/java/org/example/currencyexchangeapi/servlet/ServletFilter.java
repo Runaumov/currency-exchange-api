@@ -1,9 +1,11 @@
 package org.example.currencyexchangeapi.servlet;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletResponse;
+import org.example.currencyexchangeapi.dto.ResponseErrorDto;
 import org.example.currencyexchangeapi.exceptions.DatabaseConnectionException;
 import org.example.currencyexchangeapi.exceptions.InvalidRequestException;
 import org.example.currencyexchangeapi.exceptions.ModelAlreadyExistsException;
@@ -29,13 +31,13 @@ public class ServletFilter implements Filter {
         try {
             filterChain.doFilter(servletRequest, servletResponse);
         } catch (DatabaseConnectionException e) {
-            ((HttpServletResponse) servletResponse).setStatus(500);
+            handleException(httpServletResponse, e.getMessage(), 500);
         } catch (ModelAlreadyExistsException e) {
-            ((HttpServletResponse) servletResponse).setStatus(409);
+            handleException(httpServletResponse, e.getMessage(), 409);
         } catch (ModelNotFoundException e) {
-            ((HttpServletResponse) servletResponse).setStatus(404);
+            handleException(httpServletResponse, e.getMessage(), 404);
         } catch (InvalidRequestException e) {
-            ((HttpServletResponse) servletResponse).setStatus(400);
+            handleException(httpServletResponse, e.getMessage(), 400);
         }
     }
 
@@ -44,7 +46,10 @@ public class ServletFilter implements Filter {
         Filter.super.destroy();
     }
 
-    private void handleException(HttpServletResponse response, String message, int statusCode) {
-        String jsonResponse = objectMapper.write
+    private void handleException(HttpServletResponse response, String message, int statusCode) throws IOException {
+        ResponseErrorDto responseErrorDto = new ResponseErrorDto(message);
+        String jsonResponse = objectMapper.writeValueAsString(responseErrorDto);
+        response.setStatus(statusCode);
+        response.getWriter().write(jsonResponse);
     }
 }

@@ -10,6 +10,7 @@ import org.example.currencyexchangeapi.dao.JdbcCurrencyDao;
 import org.example.currencyexchangeapi.dto.RequestCurrencyDto;
 import org.example.currencyexchangeapi.dto.ResponseCurrencyDto;
 import org.example.currencyexchangeapi.model.Currency;
+import org.example.currencyexchangeapi.servlet.validator.RequestValidator;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,29 +39,25 @@ public class CurrenciesServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String code = req.getParameter("code");
         String fullname = req.getParameter("fullname");
         String sign = req.getParameter("sign");
 
         RequestCurrencyDto requestCurrencyDto = new RequestCurrencyDto(code, fullname, sign);
+        RequestValidator.validateCurrency(requestCurrencyDto);
 
-        // наверное, это стоит вынести в отделный метод convert или что-то похожее
-        Currency currency = new Currency(requestCurrencyDto.getCode(), requestCurrencyDto.getFullname(), requestCurrencyDto.getSign());
-
-        jdbcCurrencyDao.saveCurrency(currency);
-
-        resp.setContentType("application/json");
-        resp.setCharacterEncoding("UTF-8");
-
-        // тут хня, возвращаем то, что получили, наверное, нужно возвращать с бд
-        ResponseCurrencyDto responseCurrencyDto = new ResponseCurrencyDto(
-                currency.getId(),
-                currency.getCode(),
-                currency.getFullname(),
-                currency.getSign()
+        jdbcCurrencyDao.saveCurrency(new Currency(
+                requestCurrencyDto.getCode(),
+                requestCurrencyDto.getFullname(),
+                requestCurrencyDto.getSign())
         );
+        
+        Currency responseCurrency = jdbcCurrencyDao.findByCode(requestCurrencyDto.getCode());
+        ResponseCurrencyDto responseCurrencyDto = new ResponseCurrencyDto(responseCurrency.getId(),
+                responseCurrency.getCode(),
+                responseCurrency.getFullname(),
+                responseCurrency.getSign());
 
         objectMapper.writeValue(resp.getWriter(), responseCurrencyDto);
     }
