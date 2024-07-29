@@ -6,14 +6,12 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.example.currencyexchangeapi.dao.JdbcCurrencyDao;
 import org.example.currencyexchangeapi.dao.JdbcExchangeRateDao;
 import org.example.currencyexchangeapi.dto.RequestExchangeRateDto;
 import org.example.currencyexchangeapi.dto.ResponseExchangeRateDto;
 import org.example.currencyexchangeapi.model.ExchangeRate;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Optional;
 
 @WebServlet("/exchangeRate/*")
 public class ExchangeRateServlet extends HttpServlet {
@@ -26,10 +24,7 @@ public class ExchangeRateServlet extends HttpServlet {
         String baseCode = req.getPathInfo().replaceAll("/", "").substring(0, 3);
         String targetCode = req.getPathInfo().replaceAll("/", "").substring(3);
 
-        resp.setContentType("application/json");
-        resp.setCharacterEncoding("UTF-8");
-
-        ExchangeRate exchangeRate = jdbcExchangeRateDao.findByCode(baseCode, targetCode).orElseThrow();
+        ExchangeRate exchangeRate = jdbcExchangeRateDao.findByCode(baseCode, targetCode);
 
         ResponseExchangeRateDto responseExchangeRateDto = new ResponseExchangeRateDto(
                 exchangeRate.getId(),
@@ -50,10 +45,10 @@ public class ExchangeRateServlet extends HttpServlet {
         RequestExchangeRateDto requestExchangeRateDto = new RequestExchangeRateDto(baseCode, targetCode, rate);
 
         //
-        ExchangeRate exchangeRate = jdbcExchangeRateDao.findByCode(requestExchangeRateDto.getBaseCurrency(), requestExchangeRateDto.getTargetCurrency()).orElseThrow();
+        ExchangeRate exchangeRate = jdbcExchangeRateDao.findByCode(requestExchangeRateDto.getBaseCurrency(), requestExchangeRateDto.getTargetCurrency());
         exchangeRate.setRate(new BigDecimal(rate));
         jdbcExchangeRateDao.updateExchangeRate(exchangeRate);
-        ExchangeRate exchangeRateUpdated = jdbcExchangeRateDao.findByCode(requestExchangeRateDto.getBaseCurrency(), requestExchangeRateDto.getTargetCurrency()).orElseThrow();
+        ExchangeRate exchangeRateUpdated = jdbcExchangeRateDao.findByCode(requestExchangeRateDto.getBaseCurrency(), requestExchangeRateDto.getTargetCurrency());
         //
 
         ResponseExchangeRateDto responseExchangeRateDto = new ResponseExchangeRateDto(

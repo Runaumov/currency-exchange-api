@@ -121,9 +121,4 @@ public class JdbcCurrencyDao implements CurrencyDao {
         }
     }
 
-    public static void main(String[] args) {
-        JdbcCurrencyDao jdbcCurrencyDao = new JdbcCurrencyDao();
-        jdbcCurrencyDao.findByCode("PSA");
-    }
-
 }

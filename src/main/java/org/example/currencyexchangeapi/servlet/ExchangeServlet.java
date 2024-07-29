@@ -25,9 +25,6 @@ public class ExchangeServlet extends HttpServlet {
 
         RequestExchangeDto requestExchangeDto = new RequestExchangeDto(baseCurrency, targetCurrency, new BigDecimal(amount));
 
-        resp.setContentType("application/json");
-        resp.setCharacterEncoding("UTF-8");
-
         Exchange exchange = new Exchange();
         ResponseExchangeDto responseExchangeDto = exchange.exchange(requestExchangeDto);
 
