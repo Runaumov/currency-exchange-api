@@ -58,9 +58,6 @@ public class ExchangeRateServlet extends HttpServlet {
                 exchangeRateUpdated.getRate()
         );
 
-        resp.setContentType("application/json");
-        resp.setCharacterEncoding("UTF-8");
-
         objectMapper.writeValue(resp.getWriter(), responseExchangeRateDto);
     }
 

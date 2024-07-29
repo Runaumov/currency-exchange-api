@@ -26,7 +26,7 @@ public class ExchangeServlet extends HttpServlet {
         RequestExchangeDto requestExchangeDto = new RequestExchangeDto(baseCurrency, targetCurrency, new BigDecimal(amount));
 
         Exchange exchange = new Exchange();
-        ResponseExchangeDto responseExchangeDto = exchange.exchange(requestExchangeDto);
+        ResponseExchangeDto responseExchangeDto = exchange.exchangeRateForAmount(requestExchangeDto);
 
         objectMapper.writeValue(resp.getWriter(), responseExchangeDto);
 

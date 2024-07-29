@@ -3,6 +3,7 @@ package org.example.currencyexchangeapi.service;
 import org.example.currencyexchangeapi.dao.JdbcExchangeRateDao;
 import org.example.currencyexchangeapi.dto.RequestExchangeDto;
 import org.example.currencyexchangeapi.dto.ResponseExchangeDto;
+import org.example.currencyexchangeapi.exceptions.ModelNotFoundException;
 import org.example.currencyexchangeapi.model.ExchangeRate;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -10,8 +11,8 @@ import java.math.RoundingMode;
 public class Exchange {
     JdbcExchangeRateDao jdbcExchangeRateDao = new JdbcExchangeRateDao();
 
-    public ResponseExchangeDto exchange(RequestExchangeDto requestExchangeDto) {
-        ExchangeRate exchangeRate = findExchange(requestExchangeDto);
+    public ResponseExchangeDto exchangeRateForAmount(RequestExchangeDto requestExchangeDto) {
+        ExchangeRate exchangeRate = findExchangeRateForAmount(requestExchangeDto);
 
         BigDecimal amount = requestExchangeDto.getAmount();
         BigDecimal convertedAmount = exchangeRate.getRate().multiply(amount).setScale(2, RoundingMode.HALF_UP);
@@ -26,7 +27,7 @@ public class Exchange {
         return responseExchangeDto;
     }
 
-    private ExchangeRate findExchange(RequestExchangeDto requestExchangeDto) {
+    private ExchangeRate findExchangeRateForAmount(RequestExchangeDto requestExchangeDto) {
         ExchangeRate exchangeRate = null;
 
         try {
@@ -46,6 +47,14 @@ public class Exchange {
                 exchangeRate = findByCrossRate(requestExchangeDto);
             } catch (Exception ignored) {
             }
+        }
+
+        if (exchangeRate == null) {
+            throw new ModelNotFoundException(String.format(
+                    "Exchange rate '%s'-'%s' does not found in database or cannot be found by cross rate",
+                    requestExchangeDto.getBaseCurrency(),
+                    requestExchangeDto.getTargetCurrency()
+                    ));
         }
 
         return exchangeRate;
