@@ -8,7 +8,7 @@ import org.example.currencyexchangeapi.model.ExchangeRate;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-public class Exchange {
+public class ExchangeService {
     JdbcExchangeRateDao jdbcExchangeRateDao = new JdbcExchangeRateDao();
 
     public ResponseExchangeDto exchangeRateForAmount(RequestExchangeDto requestExchangeDto) {
