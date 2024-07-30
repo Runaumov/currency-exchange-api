@@ -26,9 +26,6 @@ public class CurrenciesServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         List<Currency> currencies = jdbcCurrencyDao.findAll();
 
-        resp.setContentType("application/json");
-        resp.setCharacterEncoding("UTF-8");
-
         // наверное, это стоит вынести в отделный метод convert или что-то похожее
         List<ResponseCurrencyDto> responseCurrencyDto = new ArrayList<>();
         for (Currency currency : currencies) {

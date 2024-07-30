@@ -1,6 +1,5 @@
 package org.example.currencyexchangeapi.servlet;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
@@ -10,7 +9,6 @@ import org.example.currencyexchangeapi.exceptions.DatabaseConnectionException;
 import org.example.currencyexchangeapi.exceptions.InvalidRequestException;
 import org.example.currencyexchangeapi.exceptions.ModelAlreadyExistsException;
 import org.example.currencyexchangeapi.exceptions.ModelNotFoundException;
-
 import java.io.IOException;
 
 @WebFilter("/*")
@@ -31,19 +29,14 @@ public class ServletFilter implements Filter {
         try {
             filterChain.doFilter(servletRequest, servletResponse);
         } catch (DatabaseConnectionException e) {
-            handleException(httpServletResponse, e.getMessage(), 500);
+            handleException(httpServletResponse, e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         } catch (ModelAlreadyExistsException e) {
-            handleException(httpServletResponse, e.getMessage(), 409);
+            handleException(httpServletResponse, e.getMessage(), HttpServletResponse.SC_CONFLICT);
         } catch (ModelNotFoundException e) {
-            handleException(httpServletResponse, e.getMessage(), 404);
+            handleException(httpServletResponse, e.getMessage(), HttpServletResponse.SC_NOT_FOUND);
         } catch (InvalidRequestException e) {
-            handleException(httpServletResponse, e.getMessage(), 400);
+            handleException(httpServletResponse, e.getMessage(), HttpServletResponse.SC_BAD_REQUEST);
         }
-    }
-
-    @Override
-    public void destroy() {
-        Filter.super.destroy();
     }
 
     private void handleException(HttpServletResponse response, String message, int statusCode) throws IOException {
@@ -51,5 +44,10 @@ public class ServletFilter implements Filter {
         String jsonResponse = objectMapper.writeValueAsString(responseErrorDto);
         response.setStatus(statusCode);
         response.getWriter().write(jsonResponse);
+    }
+
+    @Override
+    public void destroy() {
+        Filter.super.destroy();
     }
 }

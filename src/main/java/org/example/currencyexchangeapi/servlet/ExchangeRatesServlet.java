@@ -11,7 +11,6 @@ import org.example.currencyexchangeapi.dao.JdbcExchangeRateDao;
 import org.example.currencyexchangeapi.dto.RequestExchangeRateDto;
 import org.example.currencyexchangeapi.dto.ResponseExchangeRateDto;
 import org.example.currencyexchangeapi.model.ExchangeRate;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -24,14 +23,9 @@ public class ExchangeRatesServlet extends HttpServlet {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         List<ExchangeRate> exchangeRates = jdbcExchangeRateDao.findAll();
 
-        resp.setContentType("application/json");
-        resp.setCharacterEncoding("UTF-8");
-
-        // наверное, это стоит вынести в отделный метод convert или что-то похожее
         List<ResponseExchangeRateDto> responseExchangeRateDto = new ArrayList<>();
         for (ExchangeRate exchangeRate : exchangeRates) {
             responseExchangeRateDto.add(
@@ -49,7 +43,7 @@ public class ExchangeRatesServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         JdbcCurrencyDao jdbcCurrencyDao = new JdbcCurrencyDao();
 
         String baseCurrencyCode = req.getParameter("baseCurrencyCode");
@@ -58,20 +52,20 @@ public class ExchangeRatesServlet extends HttpServlet {
 
         RequestExchangeRateDto requestExchangeRateDto = new RequestExchangeRateDto(baseCurrencyCode, targetCurrencyCode, rate);
 
-        // выглядит сомнительно
-        ExchangeRate exchangeRate = new ExchangeRate(
+        ExchangeRate requestExchangeRate = new ExchangeRate(
                 jdbcCurrencyDao.findByCode(requestExchangeRateDto.getBaseCurrency()),
                 jdbcCurrencyDao.findByCode(requestExchangeRateDto.getTargetCurrency()),
                 new BigDecimal(requestExchangeRateDto.getRate()));
 
-        jdbcExchangeRateDao.saveExchangeRate(exchangeRate);
+        jdbcExchangeRateDao.saveExchangeRate(requestExchangeRate);
 
-        // тут хня, возвращаем то, что получили, наверное, нужно возвращать с бд
+        ExchangeRate responseExchangeRate = jdbcExchangeRateDao.findByCode(baseCurrencyCode, targetCurrencyCode);
+
         ResponseExchangeRateDto responseExchangeRateDto = new ResponseExchangeRateDto(
-                exchangeRate.getId(),
-                exchangeRate.getBaseCurrency(),
-                exchangeRate.getTargetCurrency(),
-                exchangeRate.getRate()
+                responseExchangeRate.getId(),
+                responseExchangeRate.getBaseCurrency(),
+                responseExchangeRate.getTargetCurrency(),
+                responseExchangeRate.getRate()
         );
 
         objectMapper.writeValue(resp.getWriter(), responseExchangeRateDto);
