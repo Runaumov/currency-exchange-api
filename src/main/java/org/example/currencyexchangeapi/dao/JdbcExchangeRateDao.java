@@ -67,8 +67,7 @@ public class JdbcExchangeRateDao implements ExchangeDao {
     }
 
     @Override
-    public ExchangeRate findByCode(String baseCode, String targetCode) {
-        ExchangeRate exchangeRate = new ExchangeRate();
+    public Optional<ExchangeRate> findByCode(String baseCode, String targetCode) {
         String sql = "SELECT er.id AS id, " +
                 "bc.id AS bc_id, " +
                 "bc.fullname AS bc_name, " +
@@ -91,12 +90,8 @@ public class JdbcExchangeRateDao implements ExchangeDao {
             preparedStatement.setString(2, targetCode);
             ResultSet resultSet = preparedStatement.executeQuery();
 
-            if (!resultSet.next()) {
-                throw new ModelNotFoundException(
-                        String.format(String.format("Exchange rate '%s'-'%s' not found in database.",
-                                baseCode, targetCode))
-                );
-            } else {
+            while (resultSet.next()) {
+                ExchangeRate exchangeRate = new ExchangeRate();
                 exchangeRate.setId(resultSet.getLong("id"));
                 exchangeRate.setBaseCurrency(
                         new Currency(resultSet.getLong("bc_id"),
@@ -112,11 +107,13 @@ public class JdbcExchangeRateDao implements ExchangeDao {
                         resultSet.getString("tc_sign")
                         ));
                 exchangeRate.setRate(resultSet.getBigDecimal("rate"));
-                return exchangeRate;
+                return Optional.of(exchangeRate);
             }
+
         } catch (SQLException e) {
             throw new DatabaseConnectionException("Database is not responding");
         }
+        return Optional.empty();
     }
 
     public void saveExchangeRate(ExchangeRate exchangeRate) {

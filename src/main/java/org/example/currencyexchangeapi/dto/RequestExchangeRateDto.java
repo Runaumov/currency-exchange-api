@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -12,5 +14,5 @@ import lombok.Setter;
 public class RequestExchangeRateDto {
     private String baseCurrency;
     private String targetCurrency;
-    private String rate;
+    private BigDecimal rate;
 }

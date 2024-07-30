@@ -10,6 +10,7 @@ import org.example.currencyexchangeapi.dao.JdbcCurrencyDao;
 import org.example.currencyexchangeapi.dao.JdbcExchangeRateDao;
 import org.example.currencyexchangeapi.dto.RequestExchangeRateDto;
 import org.example.currencyexchangeapi.dto.ResponseExchangeRateDto;
+import org.example.currencyexchangeapi.exceptions.ModelNotFoundException;
 import org.example.currencyexchangeapi.model.ExchangeRate;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -46,20 +47,22 @@ public class ExchangeRatesServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         JdbcCurrencyDao jdbcCurrencyDao = new JdbcCurrencyDao();
 
-        String baseCurrencyCode = req.getParameter("baseCurrencyCode");
-        String targetCurrencyCode = req.getParameter("targetCurrencyCode");
+        String baseCode = req.getParameter("baseCurrencyCode");
+        String targetCode = req.getParameter("targetCurrencyCode");
         String rate = req.getParameter("rate");
 
-        RequestExchangeRateDto requestExchangeRateDto = new RequestExchangeRateDto(baseCurrencyCode, targetCurrencyCode, rate);
+        RequestExchangeRateDto requestExchangeRateDto = new RequestExchangeRateDto(baseCode, targetCode, new BigDecimal(rate));
 
         ExchangeRate requestExchangeRate = new ExchangeRate(
                 jdbcCurrencyDao.findByCode(requestExchangeRateDto.getBaseCurrency()),
                 jdbcCurrencyDao.findByCode(requestExchangeRateDto.getTargetCurrency()),
-                new BigDecimal(requestExchangeRateDto.getRate()));
+                requestExchangeRateDto.getRate());
 
         jdbcExchangeRateDao.saveExchangeRate(requestExchangeRate);
 
-        ExchangeRate responseExchangeRate = jdbcExchangeRateDao.findByCode(baseCurrencyCode, targetCurrencyCode);
+        ExchangeRate responseExchangeRate = jdbcExchangeRateDao.findByCode(baseCode, targetCode).orElseThrow(() ->
+                new ModelNotFoundException(String.format("Exchange rate '%s'-'%s' not found in database and cannot be added.",
+                        baseCode, targetCode)));
 
         ResponseExchangeRateDto responseExchangeRateDto = new ResponseExchangeRateDto(
                 responseExchangeRate.getId(),

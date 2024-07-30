@@ -8,6 +8,6 @@ public interface ExchangeDao {
 
     List<ExchangeRate> findAll();
 
-    ExchangeRate findByCode(String baseCode, String targetCode);
+    Optional<ExchangeRate> findByCode(String baseCode, String targetCode);
 
 }
