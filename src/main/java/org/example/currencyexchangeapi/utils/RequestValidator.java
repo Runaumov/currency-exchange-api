@@ -1,7 +1,10 @@
-package org.example.currencyexchangeapi.servlet.validator;
+package org.example.currencyexchangeapi.utils;
 
 import org.example.currencyexchangeapi.dto.RequestCurrencyDto;
+import org.example.currencyexchangeapi.dto.RequestExchangeRateDto;
 import org.example.currencyexchangeapi.exceptions.InvalidRequestException;
+
+import java.math.BigDecimal;
 import java.util.regex.Pattern;
 
 public class RequestValidator {
@@ -10,10 +13,22 @@ public class RequestValidator {
     private static final Pattern CURRENCY_FULLNAME_PATTERN = Pattern.compile("^[A-Za-z\\s\\(\\)]+$");
     private static final Pattern CURRENCY_SIGN_PATTERN = Pattern.compile("^[\\p{Sc}A-Za-z]$");
 
-    public static void validateCurrency(RequestCurrencyDto requestCurrencyDto) {
+    public static void validateCurrencyDto(RequestCurrencyDto requestCurrencyDto) {
         validateCurrencyCode(requestCurrencyDto.getCode());
         validateCurrencyFullname(requestCurrencyDto.getFullname());
         validateCurrencySign(requestCurrencyDto.getSign());
+    }
+
+    public static void validateExchangeRateDto(RequestExchangeRateDto requestExchangeRateDto) {
+        validateCurrencyCode(requestExchangeRateDto.getBaseCurrencyCode());
+        validateCurrencyCode(requestExchangeRateDto.getTargetCurrencyCode());
+        validateRate(requestExchangeRateDto.getRate());
+    }
+
+    private static void validateRate(BigDecimal rate) {
+        if (rate == null || rate.signum() < 0) {
+            throw new InvalidRequestException("Invalid rate");
+        }
     }
 
     public static void validateCurrencyCode(String code) {

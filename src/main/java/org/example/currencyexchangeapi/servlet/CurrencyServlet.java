@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.example.currencyexchangeapi.dao.JdbcCurrencyDao;
 import org.example.currencyexchangeapi.dto.ResponseCurrencyDto;
 import org.example.currencyexchangeapi.model.Currency;
-import org.example.currencyexchangeapi.servlet.validator.RequestValidator;
+import org.example.currencyexchangeapi.utils.RequestValidator;
 import org.example.currencyexchangeapi.exceptions.ModelNotFoundException;
 
 import java.io.IOException;

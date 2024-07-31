@@ -1,7 +1,6 @@
 package org.example.currencyexchangeapi.servlet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,7 +10,10 @@ import org.example.currencyexchangeapi.dao.JdbcExchangeRateDao;
 import org.example.currencyexchangeapi.dto.RequestExchangeRateDto;
 import org.example.currencyexchangeapi.dto.ResponseExchangeRateDto;
 import org.example.currencyexchangeapi.exceptions.ModelNotFoundException;
+import org.example.currencyexchangeapi.model.Currency;
 import org.example.currencyexchangeapi.model.ExchangeRate;
+import org.example.currencyexchangeapi.utils.RequestValidator;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -52,10 +54,18 @@ public class ExchangeRatesServlet extends HttpServlet {
         String rate = req.getParameter("rate");
 
         RequestExchangeRateDto requestExchangeRateDto = new RequestExchangeRateDto(baseCode, targetCode, new BigDecimal(rate));
+        RequestValidator.validateExchangeRateDto(requestExchangeRateDto);
+
+        Currency baseCurrency = jdbcCurrencyDao.findByCode(requestExchangeRateDto.getBaseCurrencyCode())
+                .orElseThrow(() -> new ModelNotFoundException(String.format(
+                        "Base currency '%s' not found in database.", baseCode)));
+        Currency targetCurrency = jdbcCurrencyDao.findByCode(requestExchangeRateDto.getTargetCurrencyCode())
+                .orElseThrow(() -> new ModelNotFoundException(String.format(
+                        "Target currency '%s' not found in database.", targetCode)));
 
         ExchangeRate requestExchangeRate = new ExchangeRate(
-                jdbcCurrencyDao.findByCode(requestExchangeRateDto.getBaseCurrency()),
-                jdbcCurrencyDao.findByCode(requestExchangeRateDto.getTargetCurrency()),
+                baseCurrency,
+                targetCurrency,
                 requestExchangeRateDto.getRate());
 
         jdbcExchangeRateDao.saveExchangeRate(requestExchangeRate);

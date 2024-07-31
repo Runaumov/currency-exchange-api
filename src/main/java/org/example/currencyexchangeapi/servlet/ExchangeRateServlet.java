@@ -11,6 +11,8 @@ import org.example.currencyexchangeapi.dto.RequestExchangeRateDto;
 import org.example.currencyexchangeapi.dto.ResponseExchangeRateDto;
 import org.example.currencyexchangeapi.exceptions.ModelNotFoundException;
 import org.example.currencyexchangeapi.model.ExchangeRate;
+import org.example.currencyexchangeapi.utils.RequestValidator;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 
@@ -24,6 +26,9 @@ public class ExchangeRateServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String baseCode = req.getPathInfo().replaceAll("/", "").substring(0, 3);
         String targetCode = req.getPathInfo().replaceAll("/", "").substring(3);
+
+        RequestValidator.validateCurrencyCode(baseCode);
+        RequestValidator.validateCurrencyCode(targetCode);
 
         ExchangeRate exchangeRate = jdbcExchangeRateDao.findByCode(baseCode, targetCode).orElseThrow(() ->
                 new ModelNotFoundException(String.format("Exchange rate '%s'-'%s' not found in database",
@@ -46,10 +51,11 @@ public class ExchangeRateServlet extends HttpServlet {
         String rate = parameter.replace("rate=", "");
 
         RequestExchangeRateDto requestExchangeRateDto = new RequestExchangeRateDto(baseCode, targetCode, new BigDecimal(rate));
+        RequestValidator.validateExchangeRateDto(requestExchangeRateDto);
 
         ExchangeRate requestExchangeRate = jdbcExchangeRateDao.findByCode(
-                requestExchangeRateDto.getBaseCurrency(),
-                requestExchangeRateDto.getTargetCurrency()).orElseThrow(() ->
+                requestExchangeRateDto.getBaseCurrencyCode(),
+                requestExchangeRateDto.getTargetCurrencyCode()).orElseThrow(() ->
                 new ModelNotFoundException(String.format("Exchange rate '%s'-'%s' not found in database and cannot be updated.",
                         baseCode, targetCode)));
 

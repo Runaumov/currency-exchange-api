@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 public class RequestExchangeRateDto {
-    private String baseCurrency;
-    private String targetCurrency;
+    private String baseCurrencyCode;
+    private String targetCurrencyCode;
     private BigDecimal rate;
 }
