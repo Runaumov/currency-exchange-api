@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Optional;
 
+// TODO: Добавить сервисы для ExchangeRate
 public class ConversionService {
     JdbcExchangeRateDao jdbcExchangeRateDao = new JdbcExchangeRateDao();
 
