@@ -9,6 +9,7 @@ import org.example.currencyexchangeapi.dao.JdbcCurrencyDao;
 import org.example.currencyexchangeapi.dto.ResponseCurrencyDto;
 import org.example.currencyexchangeapi.model.Currency;
 import org.example.currencyexchangeapi.servlet.validator.RequestValidator;
+import org.example.currencyexchangeapi.exceptions.ModelNotFoundException;
 
 import java.io.IOException;
 
@@ -23,7 +24,8 @@ public class CurrencyServlet extends HttpServlet {
         String code = req.getPathInfo().replaceAll("/", "");
         RequestValidator.validateCurrencyCode(code);
 
-        Currency currency = jdbcCurrencyDao.findByCode(code);
+        Currency currency = jdbcCurrencyDao.findByCode(code).orElseThrow(() ->
+                new ModelNotFoundException(String.format("Currency '%s' not found in database.", code)));
 
         ResponseCurrencyDto responseCurrencyDto = new ResponseCurrencyDto(
                 currency.getId(),

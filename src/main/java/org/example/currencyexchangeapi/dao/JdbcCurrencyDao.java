@@ -13,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class JdbcCurrencyDao implements CurrencyDao {
 
@@ -39,7 +40,7 @@ public class JdbcCurrencyDao implements CurrencyDao {
     }
 
     @Override
-    public Currency findByCode(String code) {
+    public Optional<Currency> findByCode(String code) {
         String sql = "SELECT * FROM currencies WHERE code=?";
         Currency currency = new Currency();
 
@@ -49,18 +50,17 @@ public class JdbcCurrencyDao implements CurrencyDao {
             preparedStatement.setString(1, code);
             ResultSet resultSet = preparedStatement.executeQuery();
 
-            if (!resultSet.next()) {
-                throw new ModelNotFoundException(String.format("Currency '%s' not found in database.", code));
-            } else {
+            if (resultSet.next()) {
                 currency.setId(resultSet.getLong("id"));
                 currency.setCode(resultSet.getString("code"));
                 currency.setFullname(resultSet.getString("fullname"));
                 currency.setSign(resultSet.getString("sign"));
-                return currency;
+                return Optional.of(currency);
             }
         } catch (SQLException e) {
             throw new DatabaseConnectionException("Database is not responding");
         }
+        return Optional.empty();
     }
 
     @Override

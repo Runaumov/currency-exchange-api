@@ -2,12 +2,13 @@ package org.example.currencyexchangeapi.dao;
 
 import org.example.currencyexchangeapi.model.Currency;
 import java.util.List;
+import java.util.Optional;
 
 public interface CurrencyDao {
 
     List<Currency> findAll();
 
-    Currency findByCode(String code);
+    Optional<Currency> findByCode(String code);
 
     void saveCurrency(Currency currency);
 

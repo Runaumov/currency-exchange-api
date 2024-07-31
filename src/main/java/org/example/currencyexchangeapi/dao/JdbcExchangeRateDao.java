@@ -90,7 +90,7 @@ public class JdbcExchangeRateDao implements ExchangeDao {
             preparedStatement.setString(2, targetCode);
             ResultSet resultSet = preparedStatement.executeQuery();
 
-            while (resultSet.next()) {
+            if (resultSet.next()) {
                 ExchangeRate exchangeRate = new ExchangeRate();
                 exchangeRate.setId(resultSet.getLong("id"));
                 exchangeRate.setBaseCurrency(
