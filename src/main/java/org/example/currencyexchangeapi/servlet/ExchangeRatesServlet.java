@@ -13,6 +13,7 @@ import org.example.currencyexchangeapi.exceptions.ModelNotFoundException;
 import org.example.currencyexchangeapi.model.Currency;
 import org.example.currencyexchangeapi.model.ExchangeRate;
 import org.example.currencyexchangeapi.utils.RequestValidator;
+import org.modelmapper.ModelMapper;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -23,6 +24,7 @@ import java.util.List;
 public class ExchangeRatesServlet extends HttpServlet {
 
     private final JdbcExchangeRateDao jdbcExchangeRateDao = new JdbcExchangeRateDao();
+    private final ModelMapper modelMapper = new ModelMapper();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
@@ -31,14 +33,7 @@ public class ExchangeRatesServlet extends HttpServlet {
 
         List<ResponseExchangeRateDto> responseExchangeRateDto = new ArrayList<>();
         for (ExchangeRate exchangeRate : exchangeRates) {
-            responseExchangeRateDto.add(
-                    new ResponseExchangeRateDto(
-                            exchangeRate.getId(),
-                            exchangeRate.getBaseCurrency(),
-                            exchangeRate.getTargetCurrency(),
-                            exchangeRate.getRate()
-                    )
-            );
+            responseExchangeRateDto.add(modelMapper.map(exchangeRate, ResponseExchangeRateDto.class));
         }
 
         objectMapper.writeValue(resp.getWriter(), responseExchangeRateDto);
@@ -74,12 +69,7 @@ public class ExchangeRatesServlet extends HttpServlet {
                 new ModelNotFoundException(String.format("Exchange rate '%s'-'%s' not found in database and cannot be added.",
                         baseCode, targetCode)));
 
-        ResponseExchangeRateDto responseExchangeRateDto = new ResponseExchangeRateDto(
-                responseExchangeRate.getId(),
-                responseExchangeRate.getBaseCurrency(),
-                responseExchangeRate.getTargetCurrency(),
-                responseExchangeRate.getRate()
-        );
+        ResponseExchangeRateDto responseExchangeRateDto = modelMapper.map(responseExchangeRate, ResponseExchangeRateDto.class);
 
         objectMapper.writeValue(resp.getWriter(), responseExchangeRateDto);
 

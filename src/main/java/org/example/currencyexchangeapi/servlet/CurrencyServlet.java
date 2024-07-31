@@ -10,12 +10,13 @@ import org.example.currencyexchangeapi.dto.ResponseCurrencyDto;
 import org.example.currencyexchangeapi.model.Currency;
 import org.example.currencyexchangeapi.utils.RequestValidator;
 import org.example.currencyexchangeapi.exceptions.ModelNotFoundException;
+import org.modelmapper.ModelMapper;
 
 import java.io.IOException;
 
 @WebServlet("/currency/*")
 public class CurrencyServlet extends HttpServlet {
-
+    private final ModelMapper modelMapper = new ModelMapper();
     private final JdbcCurrencyDao jdbcCurrencyDao = new JdbcCurrencyDao();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -27,12 +28,7 @@ public class CurrencyServlet extends HttpServlet {
         Currency currency = jdbcCurrencyDao.findByCode(code).orElseThrow(() ->
                 new ModelNotFoundException(String.format("Currency '%s' not found in database.", code)));
 
-        ResponseCurrencyDto responseCurrencyDto = new ResponseCurrencyDto(
-                currency.getId(),
-                currency.getCode(),
-                currency.getFullname(),
-                currency.getSign()
-                );
+        ResponseCurrencyDto responseCurrencyDto = modelMapper.map(currency, ResponseCurrencyDto.class);
 
         objectMapper.writeValue(resp.getWriter(), responseCurrencyDto);
     }

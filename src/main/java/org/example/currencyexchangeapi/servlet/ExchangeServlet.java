@@ -17,17 +17,16 @@ public class ExchangeServlet extends HttpServlet {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String baseCurrency = req.getParameter("from");
         String targetCurrency = req.getParameter("to");
         String amount = req.getParameter("amount");
 
         RequestExchangeDto requestExchangeDto = new RequestExchangeDto(baseCurrency, targetCurrency, new BigDecimal(amount));
 
-        ExchangeService exchange = new ExchangeService();
-        ResponseExchangeDto responseExchangeDto = exchange.exchangeRateForAmount(requestExchangeDto);
+        ExchangeService exchangeService = new ExchangeService();
+        ResponseExchangeDto responseExchangeDto = exchangeService.exchangeRateForAmount(requestExchangeDto);
 
         objectMapper.writeValue(resp.getWriter(), responseExchangeDto);
-
     }
 }

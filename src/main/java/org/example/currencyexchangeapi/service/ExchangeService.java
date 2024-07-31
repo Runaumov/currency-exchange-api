@@ -39,15 +39,12 @@ public class ExchangeService {
         if (exchangeRateOptional.isEmpty()) {
             exchangeRateOptional = findByInverseRate(requestExchangeDto);
         }
-
         if (exchangeRateOptional.isEmpty()) {
             exchangeRateOptional = findByCrossRate(requestExchangeDto);
         }
-
         return exchangeRateOptional;
 
     }
-
 
     private Optional<ExchangeRate> findByDirectRate(RequestExchangeDto requestExchangeDto) {
         return jdbcExchangeRateDao.findByCode(requestExchangeDto.getBaseCurrency(), requestExchangeDto.getTargetCurrency());
@@ -79,7 +76,6 @@ public class ExchangeService {
                     baseCurrencyToTargetCurrency);
             return Optional.of(exchangeRate);
         }
-
         return Optional.empty();
     }
 

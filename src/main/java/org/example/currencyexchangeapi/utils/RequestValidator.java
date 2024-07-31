@@ -11,7 +11,7 @@ public class RequestValidator {
 
     private static final Pattern CURRENCY_CODE_PATTERN = Pattern.compile("^[A-Za-z]{3}$");
     private static final Pattern CURRENCY_FULLNAME_PATTERN = Pattern.compile("^[A-Za-z\\s\\(\\)]+$");
-    private static final Pattern CURRENCY_SIGN_PATTERN = Pattern.compile("^[\\p{Sc}A-Za-z]$");
+    private static final Pattern CURRENCY_SIGN_PATTERN = Pattern.compile("^[\\p{Sc}A-Za-z]+$");
 
     public static void validateCurrencyDto(RequestCurrencyDto requestCurrencyDto) {
         validateCurrencyCode(requestCurrencyDto.getCode());

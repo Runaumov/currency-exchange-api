@@ -11,6 +11,7 @@ import org.example.currencyexchangeapi.dto.ResponseCurrencyDto;
 import org.example.currencyexchangeapi.exceptions.ModelNotFoundException;
 import org.example.currencyexchangeapi.model.Currency;
 import org.example.currencyexchangeapi.utils.RequestValidator;
+import org.modelmapper.ModelMapper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,7 +19,7 @@ import java.util.List;
 
 @WebServlet("/currencies")
 public class CurrenciesServlet extends HttpServlet {
-
+    private final ModelMapper modelMapper = new ModelMapper();
     private final JdbcCurrencyDao jdbcCurrencyDao = new JdbcCurrencyDao();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -26,17 +27,17 @@ public class CurrenciesServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         List<Currency> currencies = jdbcCurrencyDao.findAll();
 
-        // наверное, это стоит вынести в отделный метод convert или что-то похожее
-        List<ResponseCurrencyDto> responseCurrencyDto = new ArrayList<>();
+        List<ResponseCurrencyDto> responseCurrenciesDto = new ArrayList<>();
         for (Currency currency : currencies) {
-            responseCurrencyDto.add(new ResponseCurrencyDto(currency.getId(), currency.getCode(), currency.getFullname(), currency.getSign()));
+            responseCurrenciesDto.add(modelMapper.map(currency, ResponseCurrencyDto.class));
         }
-        objectMapper.writeValue(resp.getWriter(), responseCurrencyDto);
 
+        objectMapper.writeValue(resp.getWriter(), responseCurrenciesDto);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+
         String code = req.getParameter("code");
         String fullname = req.getParameter("name");
         String sign = req.getParameter("sign");
@@ -44,19 +45,12 @@ public class CurrenciesServlet extends HttpServlet {
         RequestCurrencyDto requestCurrencyDto = new RequestCurrencyDto(code, fullname, sign);
         RequestValidator.validateCurrencyDto(requestCurrencyDto);
 
-        jdbcCurrencyDao.saveCurrency(new Currency(
-                requestCurrencyDto.getCode(),
-                requestCurrencyDto.getFullname(),
-                requestCurrencyDto.getSign())
-        );
+        jdbcCurrencyDao.saveCurrency(modelMapper.map(requestCurrencyDto, Currency.class));
 
         Currency responseCurrency = jdbcCurrencyDao.findByCode(requestCurrencyDto.getCode()).orElseThrow(() ->
                 new ModelNotFoundException(String.format("Currency '%s' not found in database.", code)));
 
-        ResponseCurrencyDto responseCurrencyDto = new ResponseCurrencyDto(responseCurrency.getId(),
-                responseCurrency.getCode(),
-                responseCurrency.getFullname(),
-                responseCurrency.getSign());
+        ResponseCurrencyDto responseCurrencyDto = modelMapper.map(responseCurrency, ResponseCurrencyDto.class);
 
         objectMapper.writeValue(resp.getWriter(), responseCurrencyDto);
     }
