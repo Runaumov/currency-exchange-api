@@ -26,10 +26,6 @@ public class JdbcCurrencyDao implements CurrencyDao {
         ){
             ResultSet resultSet = preparedStatement.executeQuery();
 
-            if (!resultSet.next()) {
-                throw new ModelNotFoundException("Database does not contain any records.");
-            }
-
             while (resultSet.next()) {
                 allCurrencies.add(new Currency(resultSet.getLong("id"),
                         resultSet.getString("code"),

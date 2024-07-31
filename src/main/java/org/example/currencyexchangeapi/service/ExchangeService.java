@@ -13,7 +13,12 @@ public class ExchangeService {
     JdbcExchangeRateDao jdbcExchangeRateDao = new JdbcExchangeRateDao();
 
     public ResponseExchangeDto exchangeRateForAmount(RequestExchangeDto requestExchangeDto) {
-        ExchangeRate exchangeRate = findExchangeRateForAmount(requestExchangeDto);
+        ExchangeRate exchangeRate = findExchangeRateForAmount(requestExchangeDto).orElseThrow(() ->
+        new ModelNotFoundException(String.format(
+                "Exchange rate '%s'-'%s' does not found in database or cannot be found by cross rate",
+                requestExchangeDto.getBaseCurrency(),
+                requestExchangeDto.getTargetCurrency()
+        )));
 
         BigDecimal amount = requestExchangeDto.getAmount();
         BigDecimal convertedAmount = exchangeRate.getRate().multiply(amount).setScale(2, RoundingMode.HALF_UP);
@@ -28,37 +33,19 @@ public class ExchangeService {
         return responseExchangeDto;
     }
 
-    private ExchangeRate findExchangeRateForAmount(RequestExchangeDto requestExchangeDto) {
-        ExchangeRate exchangeRate = null;
+    private Optional<ExchangeRate> findExchangeRateForAmount(RequestExchangeDto requestExchangeDto) {
+        Optional<ExchangeRate> exchangeRateOptional = findByDirectRate(requestExchangeDto);
 
-        try {
-            exchangeRate = findByDirectRate(requestExchangeDto);
-        } catch (Exception ignored) {
+        if (exchangeRateOptional.isEmpty()) {
+            exchangeRateOptional = findByInverseRate(requestExchangeDto);
         }
 
-        if (exchangeRate == null) {
-            try {
-                exchangeRate = findByInverseRate(requestExchangeDto);
-            } catch (Exception ignored) {
-            }
+        if (exchangeRateOptional.isEmpty()) {
+            exchangeRateOptional = findByCrossRate(requestExchangeDto);
         }
 
-        if (exchangeRate == null) {
-            try {
-                exchangeRate = findByCrossRate(requestExchangeDto);
-            } catch (Exception ignored) {
-            }
-        }
+        return exchangeRateOptional;
 
-        if (exchangeRate == null) {
-            throw new ModelNotFoundException(String.format(
-                    "Exchange rate '%s'-'%s' does not found in database or cannot be found by cross rate",
-                    requestExchangeDto.getBaseCurrency(),
-                    requestExchangeDto.getTargetCurrency()
-                    ));
-        }
-
-        return exchangeRate;
     }
 
 
