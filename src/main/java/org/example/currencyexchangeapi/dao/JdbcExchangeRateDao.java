@@ -17,9 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class JdbcExchangeRateDao implements ExchangeDao {
+public class JdbcExchangeRateDao {
 
-    @Override
     public List<ExchangeRate> findAll() {
         String sql = "SELECT er.id AS id, " +
                 "bc.id AS bc_id, " +
@@ -39,10 +38,6 @@ public class JdbcExchangeRateDao implements ExchangeDao {
              PreparedStatement preparedStatement = connection.prepareStatement(sql);
         ) {
             ResultSet resultSet = preparedStatement.executeQuery();
-
-            if (!resultSet.next()) {
-                throw new ModelNotFoundException("Database does not contain any records.");
-            }
 
             while (resultSet.next()) {
                 exchangeRates.add(
@@ -66,8 +61,7 @@ public class JdbcExchangeRateDao implements ExchangeDao {
         return exchangeRates;
     }
 
-    @Override
-    public Optional<ExchangeRate> findByCode(String baseCode, String targetCode) {
+    public Optional<ExchangeRate> findByCodes(String baseCode, String targetCode) {
         String sql = "SELECT er.id AS id, " +
                 "bc.id AS bc_id, " +
                 "bc.fullname AS bc_name, " +
@@ -116,6 +110,51 @@ public class JdbcExchangeRateDao implements ExchangeDao {
         return Optional.empty();
     }
 
+    public List<ExchangeRate> findByTargetCode(String targetCode) {
+        String sql = "SELECT er.id AS id, " +
+                "bc.id AS bc_id, " +
+                "bc.fullname AS bc_name, " +
+                "bc.code AS bc_code, " +
+                "bc.sign AS bc_sign, " +
+                "tc.id AS tc_id, " +
+                "tc.fullname AS tc_name, " +
+                "tc.code AS tc_code, " +
+                "tc.sign AS tc_sign, " +
+                "er.rate AS rate " +
+                "FROM exchange_rates er " +
+                "JOIN currencies bc ON er.base_currency_id = bc.id " +
+                "JOIN currencies tc ON er.target_currency_id = tc.id " +
+                "WHERE tc.code = ?";
+        List<ExchangeRate> exchangeRates = new ArrayList<>();
+
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        ) {
+            preparedStatement.setString(1, targetCode);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                exchangeRates.add(
+                        new ExchangeRate(resultSet.getLong("id"),
+                                new Currency(resultSet.getLong("bc_id"),
+                                        resultSet.getString("bc_name"),
+                                        resultSet.getString("bc_code"),
+                                        resultSet.getString("bc_sign")
+                                ),
+                                new Currency(
+                                        resultSet.getLong("tc_id"),
+                                        resultSet.getString("tc_name"),
+                                        resultSet.getString("tc_code"),
+                                        resultSet.getString("tc_sign")),
+                                resultSet.getBigDecimal("rate")
+                        ));
+            }
+        } catch (SQLException e) {
+            throw new DatabaseConnectionException("Database is not responding");
+        }
+        return exchangeRates;
+    }
+
     public void saveExchangeRate(ExchangeRate exchangeRate) {
         String sql = "INSERT INTO exchange_rates (base_currency_id, target_currency_id, rate) VALUES (?, ?, ?)";
         try (Connection connection = DatabaseConnection.getConnection();
@@ -160,5 +199,11 @@ public class JdbcExchangeRateDao implements ExchangeDao {
             throw new DatabaseConnectionException("Database is not responding");
         }
     }
+
+//    public static void main(String[] args) {
+//        JdbcExchangeRateDao jdbcExchangeRateDao = new JdbcExchangeRateDao();
+//        List<ExchangeRate> cny = jdbcExchangeRateDao.findByTargetCode("CNY");
+//        int a = 1;
+//    }
 
 }

@@ -15,9 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class JdbcCurrencyDao implements CurrencyDao {
+public class JdbcCurrencyDao {
 
-    @Override
     public List<Currency> findAll() throws DatabaseConnectionException {
         String sql = "SELECT * FROM currencies";
         List<Currency> allCurrencies = new ArrayList<>();
@@ -28,7 +27,8 @@ public class JdbcCurrencyDao implements CurrencyDao {
             ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
-                allCurrencies.add(new Currency(resultSet.getLong("id"),
+                allCurrencies.add(new Currency(
+                        resultSet.getLong("id"),
                         resultSet.getString("code"),
                         resultSet.getString("fullname"),
                         resultSet.getString("sign")));
@@ -39,7 +39,6 @@ public class JdbcCurrencyDao implements CurrencyDao {
         return allCurrencies;
     }
 
-    @Override
     public Optional<Currency> findByCode(String code) {
         String sql = "SELECT * FROM currencies WHERE code=?";
         Currency currency = new Currency();
@@ -63,7 +62,6 @@ public class JdbcCurrencyDao implements CurrencyDao {
         return Optional.empty();
     }
 
-    @Override
     public void saveCurrency(Currency currency) {
         String sql = "INSERT INTO currencies (code, fullname, sign) VALUES (?,?,?)";
         try (Connection connection = DatabaseConnection.getConnection();
@@ -85,35 +83,6 @@ public class JdbcCurrencyDao implements CurrencyDao {
             } else {
                 throw new DatabaseConnectionException("Database is not responding");
             }
-        }
-    }
-
-    @Override
-    public void updateCurrency(Currency currency) {
-        String sql = "UPDATE currencies SET code=?, fullname=?, sign=? WHERE id=?";
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)
-        ){
-            preparedStatement.setString(1, currency.getCode());
-            preparedStatement.setString(2, currency.getFullname());
-            preparedStatement.setString(3, currency.getSign());
-            preparedStatement.setLong(4, currency.getId());
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            throw new DatabaseConnectionException("Database is not responding");
-        }
-    }
-
-    @Override
-    public void deleteCurrency(Currency currency) {
-        String sql = "DELETE FROM currencies WHERE id=?";
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)
-        ){
-            preparedStatement.setLong(1, currency.getId());
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            throw new DatabaseConnectionException("Database is not responding");
         }
     }
 
