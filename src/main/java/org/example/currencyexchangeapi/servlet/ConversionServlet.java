@@ -1,19 +1,18 @@
 package org.example.currencyexchangeapi.servlet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.currencyexchangeapi.dto.RequestExchangeDto;
 import org.example.currencyexchangeapi.dto.ResponseExchangeDto;
-import org.example.currencyexchangeapi.service.ExchangeService;
+import org.example.currencyexchangeapi.service.ConversionService;
 import java.io.IOException;
 import java.math.BigDecimal;
 
 @WebServlet("/exchange")
-public class ExchangeServlet extends HttpServlet {
+public class ConversionServlet extends HttpServlet {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
@@ -24,8 +23,8 @@ public class ExchangeServlet extends HttpServlet {
 
         RequestExchangeDto requestExchangeDto = new RequestExchangeDto(baseCurrency, targetCurrency, new BigDecimal(amount));
 
-        ExchangeService exchangeService = new ExchangeService();
-        ResponseExchangeDto responseExchangeDto = exchangeService.exchangeRateForAmount(requestExchangeDto);
+        ConversionService conversionService = new ConversionService();
+        ResponseExchangeDto responseExchangeDto = conversionService.exchangeRateForAmount(requestExchangeDto);
 
         objectMapper.writeValue(resp.getWriter(), responseExchangeDto);
     }

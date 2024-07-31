@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Optional;
 
-public class ExchangeService {
+public class ConversionService {
     JdbcExchangeRateDao jdbcExchangeRateDao = new JdbcExchangeRateDao();
 
     public ResponseExchangeDto exchangeRateForAmount(RequestExchangeDto requestExchangeDto) {
