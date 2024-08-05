@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.currencyexchangeapi.model.Currency;
-
 import java.math.BigDecimal;
 
 @AllArgsConstructor
