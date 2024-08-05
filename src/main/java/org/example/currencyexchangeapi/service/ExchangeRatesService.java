@@ -12,6 +12,7 @@ import org.modelmapper.ModelMapper;
 import java.math.BigDecimal;
 
 public class ExchangeRatesService {
+
     JdbcExchangeRateDao jdbcExchangeRateDao = new JdbcExchangeRateDao();
     JdbcCurrencyDao jdbcCurrencyDao = new JdbcCurrencyDao();
     ModelMapper modelMapper = new ModelMapper();
@@ -35,8 +36,8 @@ public class ExchangeRatesService {
         jdbcExchangeRateDao.saveExchangeRate(requestExchangeRate);
 
         ExchangeRate responseExchangeRate = jdbcExchangeRateDao.findByCodes(baseCode, targetCode).orElseThrow(() ->
-                new ModelNotFoundException(String.format("Exchange rate '%s'-'%s' not found in database and cannot be added.",
-                        baseCode, targetCode)));
+                new ModelNotFoundException(String.format("Exchange rate '%s'-'%s' not found in database " +
+                                "and cannot be added.", baseCode, targetCode)));
 
         return modelMapper.map(responseExchangeRate, ResponseExchangeRateDto.class);
     }

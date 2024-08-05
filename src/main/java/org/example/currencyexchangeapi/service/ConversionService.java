@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-// TODO: Добавить сервисы для ExchangeRate
 public class ConversionService {
+
     JdbcExchangeRateDao jdbcExchangeRateDao = new JdbcExchangeRateDao();
 
     public ResponseConversionDto exchangeRateForAmount(RequestConversionDto requestConversionDto) {
@@ -34,6 +34,7 @@ public class ConversionService {
                 amount,
                 convertedAmount
         );
+
         return responseConversionDto;
     }
 
@@ -43,24 +44,30 @@ public class ConversionService {
         if (exchangeRateOptional.isEmpty()) {
             exchangeRateOptional = findByInverseRate(requestConversionDto);
         }
+
         if (exchangeRateOptional.isEmpty()) {
             exchangeRateOptional = findByCrossRate(requestConversionDto);
         }
-        return exchangeRateOptional;
 
+        return exchangeRateOptional;
     }
 
     private Optional<ExchangeRate> findByDirectRate(RequestConversionDto requestConversionDto) {
-        return jdbcExchangeRateDao.findByCodes(requestConversionDto.getBaseCurrencyCode(), requestConversionDto.getTargetCurrencyCode());
+        return jdbcExchangeRateDao.findByCodes(requestConversionDto.getBaseCurrencyCode(),
+                requestConversionDto.getTargetCurrencyCode());
     }
 
     private Optional<ExchangeRate> findByInverseRate(RequestConversionDto requestConversionDto) {
-        Optional<ExchangeRate> exchangeRate = jdbcExchangeRateDao.findByCodes(requestConversionDto.getTargetCurrencyCode(), requestConversionDto.getBaseCurrencyCode());
+        Optional<ExchangeRate> exchangeRate = jdbcExchangeRateDao.findByCodes(
+                requestConversionDto.getTargetCurrencyCode(),
+                requestConversionDto.getBaseCurrencyCode());
+
         if (exchangeRate.isPresent()) {
             BigDecimal newAmount = BigDecimal.ONE.divide(exchangeRate.get().getRate(), 2, RoundingMode.HALF_UP);
             exchangeRate.get().setRate(newAmount);
             return exchangeRate;
         }
+
         return Optional.empty();
     }
 
@@ -86,6 +93,7 @@ public class ConversionService {
                 return Optional.of(exchangeRate);
             }
         }
+
         return Optional.empty();
     }
 
