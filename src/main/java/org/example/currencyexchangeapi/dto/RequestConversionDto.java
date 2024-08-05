@@ -11,8 +11,8 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Getter
 @Setter
-public class RequestExchangeDto {
-    private String baseCurrency;
-    private String targetCurrency;
-    private BigDecimal amount;
+public class RequestConversionDto {
+    private String baseCurrencyCode;
+    private String targetCurrencyCode;
+    private String amount;
 }

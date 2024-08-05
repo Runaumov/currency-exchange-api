@@ -9,6 +9,8 @@ import org.example.currencyexchangeapi.model.Currency;
 import org.example.currencyexchangeapi.model.ExchangeRate;
 import org.modelmapper.ModelMapper;
 
+import java.math.BigDecimal;
+
 public class ExchangeRatesService {
     JdbcExchangeRateDao jdbcExchangeRateDao = new JdbcExchangeRateDao();
     JdbcCurrencyDao jdbcCurrencyDao = new JdbcCurrencyDao();
@@ -28,7 +30,7 @@ public class ExchangeRatesService {
         ExchangeRate requestExchangeRate = new ExchangeRate(
                 baseCurrency,
                 targetCurrency,
-                requestExchangeRateDto.getRate());
+                new BigDecimal(requestExchangeRateDto.getRate()));
 
         jdbcExchangeRateDao.saveExchangeRate(requestExchangeRate);
 

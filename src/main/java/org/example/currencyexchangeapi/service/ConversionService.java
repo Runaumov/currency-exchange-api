@@ -1,8 +1,8 @@
 package org.example.currencyexchangeapi.service;
 
 import org.example.currencyexchangeapi.dao.JdbcExchangeRateDao;
-import org.example.currencyexchangeapi.dto.RequestExchangeDto;
-import org.example.currencyexchangeapi.dto.ResponseExchangeDto;
+import org.example.currencyexchangeapi.dto.RequestConversionDto;
+import org.example.currencyexchangeapi.dto.ResponseConversionDto;
 import org.example.currencyexchangeapi.exceptions.ModelNotFoundException;
 import org.example.currencyexchangeapi.model.ExchangeRate;
 import org.example.currencyexchangeapi.model.Currency;
@@ -16,46 +16,46 @@ import java.util.stream.Collectors;
 public class ConversionService {
     JdbcExchangeRateDao jdbcExchangeRateDao = new JdbcExchangeRateDao();
 
-    public ResponseExchangeDto exchangeRateForAmount(RequestExchangeDto requestExchangeDto) {
-        ExchangeRate exchangeRate = findExchangeRateForAmount(requestExchangeDto).orElseThrow(() ->
+    public ResponseConversionDto exchangeRateForAmount(RequestConversionDto requestConversionDto) {
+        ExchangeRate exchangeRate = findExchangeRateForAmount(requestConversionDto).orElseThrow(() ->
         new ModelNotFoundException(String.format(
                 "Exchange rate '%s'-'%s' does not found in database or cannot be found by cross rate",
-                requestExchangeDto.getBaseCurrency(),
-                requestExchangeDto.getTargetCurrency()
+                requestConversionDto.getBaseCurrencyCode(),
+                requestConversionDto.getTargetCurrencyCode()
         )));
 
-        BigDecimal amount = requestExchangeDto.getAmount();
+        BigDecimal amount = new BigDecimal(requestConversionDto.getAmount());
         BigDecimal convertedAmount = exchangeRate.getRate().multiply(amount).setScale(2, RoundingMode.HALF_UP);
 
-        ResponseExchangeDto responseExchangeDto = new ResponseExchangeDto(
+        ResponseConversionDto responseConversionDto = new ResponseConversionDto(
                 exchangeRate.getBaseCurrency(),
                 exchangeRate.getTargetCurrency(),
                 exchangeRate.getRate(),
                 amount,
                 convertedAmount
         );
-        return responseExchangeDto;
+        return responseConversionDto;
     }
 
-    private Optional<ExchangeRate> findExchangeRateForAmount(RequestExchangeDto requestExchangeDto) {
-        Optional<ExchangeRate> exchangeRateOptional = findByDirectRate(requestExchangeDto);
+    private Optional<ExchangeRate> findExchangeRateForAmount(RequestConversionDto requestConversionDto) {
+        Optional<ExchangeRate> exchangeRateOptional = findByDirectRate(requestConversionDto);
 
         if (exchangeRateOptional.isEmpty()) {
-            exchangeRateOptional = findByInverseRate(requestExchangeDto);
+            exchangeRateOptional = findByInverseRate(requestConversionDto);
         }
         if (exchangeRateOptional.isEmpty()) {
-            exchangeRateOptional = findByCrossRate(requestExchangeDto);
+            exchangeRateOptional = findByCrossRate(requestConversionDto);
         }
         return exchangeRateOptional;
 
     }
 
-    private Optional<ExchangeRate> findByDirectRate(RequestExchangeDto requestExchangeDto) {
-        return jdbcExchangeRateDao.findByCodes(requestExchangeDto.getBaseCurrency(), requestExchangeDto.getTargetCurrency());
+    private Optional<ExchangeRate> findByDirectRate(RequestConversionDto requestConversionDto) {
+        return jdbcExchangeRateDao.findByCodes(requestConversionDto.getBaseCurrencyCode(), requestConversionDto.getTargetCurrencyCode());
     }
 
-    private Optional<ExchangeRate> findByInverseRate(RequestExchangeDto requestExchangeDto) {
-        Optional<ExchangeRate> exchangeRate = jdbcExchangeRateDao.findByCodes(requestExchangeDto.getTargetCurrency(), requestExchangeDto.getBaseCurrency());
+    private Optional<ExchangeRate> findByInverseRate(RequestConversionDto requestConversionDto) {
+        Optional<ExchangeRate> exchangeRate = jdbcExchangeRateDao.findByCodes(requestConversionDto.getTargetCurrencyCode(), requestConversionDto.getBaseCurrencyCode());
         if (exchangeRate.isPresent()) {
             BigDecimal newAmount = BigDecimal.ONE.divide(exchangeRate.get().getRate(), 2, RoundingMode.HALF_UP);
             exchangeRate.get().setRate(newAmount);
@@ -64,9 +64,9 @@ public class ConversionService {
         return Optional.empty();
     }
 
-    private Optional<ExchangeRate> findByCrossRate(RequestExchangeDto requestExchangeDto) {
-        String baseCode = requestExchangeDto.getBaseCurrency();
-        String targetCode = requestExchangeDto.getTargetCurrency();
+    private Optional<ExchangeRate> findByCrossRate(RequestConversionDto requestConversionDto) {
+        String baseCode = requestConversionDto.getBaseCurrencyCode();
+        String targetCode = requestConversionDto.getTargetCurrencyCode();
         Optional<String> commonCode = getBaseCurrency(baseCode, targetCode);
 
         if (commonCode.isPresent()) {
@@ -106,6 +106,5 @@ public class ConversionService {
 
         return commonCode;
     }
-
 
 }

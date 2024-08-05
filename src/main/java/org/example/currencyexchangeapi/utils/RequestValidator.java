@@ -1,9 +1,9 @@
 package org.example.currencyexchangeapi.utils;
 
+import org.example.currencyexchangeapi.dto.RequestConversionDto;
 import org.example.currencyexchangeapi.dto.RequestCurrencyDto;
 import org.example.currencyexchangeapi.dto.RequestExchangeRateDto;
 import org.example.currencyexchangeapi.exceptions.InvalidRequestException;
-
 import java.math.BigDecimal;
 import java.util.regex.Pattern;
 
@@ -12,22 +12,29 @@ public class RequestValidator {
     private static final Pattern CURRENCY_CODE_PATTERN = Pattern.compile("^[A-Za-z]{3}$");
     private static final Pattern CURRENCY_FULLNAME_PATTERN = Pattern.compile("^[A-Za-z\\s\\(\\)]+$");
     private static final Pattern CURRENCY_SIGN_PATTERN = Pattern.compile("^[\\p{Sc}A-Za-z]+$");
+    private static final Pattern RATE_AND_AMOUNT_PATTERN = Pattern.compile("\\d+(\\.\\d{2})?");
 
-    public static void validateCurrencyDto(RequestCurrencyDto requestCurrencyDto) {
+    public static void validateRequestCurrencyDto(RequestCurrencyDto requestCurrencyDto) {
         validateCurrencyCode(requestCurrencyDto.getCode());
         validateCurrencyFullname(requestCurrencyDto.getFullname());
         validateCurrencySign(requestCurrencyDto.getSign());
     }
 
-    public static void validateExchangeRateDto(RequestExchangeRateDto requestExchangeRateDto) {
+    public static void validateRequestExchangeRateDto(RequestExchangeRateDto requestExchangeRateDto) {
         validateCurrencyCode(requestExchangeRateDto.getBaseCurrencyCode());
         validateCurrencyCode(requestExchangeRateDto.getTargetCurrencyCode());
-        validateRate(requestExchangeRateDto.getRate());
+        validateRateAndAmount(requestExchangeRateDto.getRate());
     }
 
-    private static void validateRate(BigDecimal rate) {
-        if (rate == null || rate.signum() < 0) {
-            throw new InvalidRequestException("Invalid rate");
+    public static void validateRequestConversionDto(RequestConversionDto requestConversionDto) {
+        validateCurrencyCode(requestConversionDto.getBaseCurrencyCode());
+        validateCurrencyCode(requestConversionDto.getTargetCurrencyCode());
+        validateRateAndAmount(requestConversionDto.getAmount());
+    }
+
+    private static void validateRateAndAmount(String rateAndAmount) {
+        if (rateAndAmount == null || !RATE_AND_AMOUNT_PATTERN.matcher(rateAndAmount).matches()) {
+            throw new InvalidRequestException("Invalid rate or amount");
         }
     }
 

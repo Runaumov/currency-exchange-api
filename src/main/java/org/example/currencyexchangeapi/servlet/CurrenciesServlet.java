@@ -43,7 +43,7 @@ public class CurrenciesServlet extends HttpServlet {
         String sign = req.getParameter("sign");
 
         RequestCurrencyDto requestCurrencyDto = new RequestCurrencyDto(code, fullname, sign);
-        RequestValidator.validateCurrencyDto(requestCurrencyDto);
+        RequestValidator.validateRequestCurrencyDto(requestCurrencyDto);
 
         jdbcCurrencyDao.saveCurrency(modelMapper.map(requestCurrencyDto, Currency.class));
 

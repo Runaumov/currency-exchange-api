@@ -14,5 +14,5 @@ import java.math.BigDecimal;
 public class RequestExchangeRateDto {
     private String baseCurrencyCode;
     private String targetCurrencyCode;
-    private BigDecimal rate;
+    private String rate;
 }

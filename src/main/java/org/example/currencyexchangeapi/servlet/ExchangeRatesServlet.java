@@ -42,8 +42,8 @@ public class ExchangeRatesServlet extends HttpServlet {
         String targetCode = req.getParameter("targetCurrencyCode");
         String rate = req.getParameter("rate");
 
-        RequestExchangeRateDto requestExchangeRateDto = new RequestExchangeRateDto(baseCode, targetCode, new BigDecimal(rate));
-        RequestValidator.validateExchangeRateDto(requestExchangeRateDto);
+        RequestExchangeRateDto requestExchangeRateDto = new RequestExchangeRateDto(baseCode, targetCode, rate);
+        RequestValidator.validateRequestExchangeRateDto(requestExchangeRateDto);
 
         ExchangeRatesService exchangeRatesService = new ExchangeRatesService();
         ResponseExchangeRateDto responseExchangeRateDto = exchangeRatesService.postExchangeRates(requestExchangeRateDto);

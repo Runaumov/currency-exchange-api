@@ -7,6 +7,8 @@ import org.example.currencyexchangeapi.exceptions.ModelNotFoundException;
 import org.example.currencyexchangeapi.model.ExchangeRate;
 import org.modelmapper.ModelMapper;
 
+import java.math.BigDecimal;
+
 public class ExchangeRateService {
     JdbcExchangeRateDao jdbcExchangeRateDao = new JdbcExchangeRateDao();
     ModelMapper modelMapper = new ModelMapper();
@@ -21,7 +23,7 @@ public class ExchangeRateService {
                 new ModelNotFoundException(String.format("Exchange rate '%s'-'%s' not found in database and cannot be updated.",
                         baseCode, targetCode)));
 
-        requestExchangeRate.setRate(requestExchangeRateDto.getRate());
+        requestExchangeRate.setRate(new BigDecimal(requestExchangeRateDto.getRate()));
         jdbcExchangeRateDao.updateExchangeRate(requestExchangeRate);
 
         ExchangeRate responseExchangeRate = jdbcExchangeRateDao.findByCodes(baseCode, targetCode).orElseThrow(() ->
