@@ -3,7 +3,6 @@ package org.example.currencyexchangeapi.dao;
 import org.example.currencyexchangeapi.DatabaseConnection;
 import org.example.currencyexchangeapi.exceptions.DatabaseConnectionException;
 import org.example.currencyexchangeapi.exceptions.ModelAlreadyExistsException;
-import org.example.currencyexchangeapi.exceptions.ModelNotFoundException;
 import org.example.currencyexchangeapi.model.Currency;
 import org.sqlite.SQLiteErrorCode;
 import org.sqlite.SQLiteException;
@@ -24,6 +23,7 @@ public class JdbcCurrencyDao {
         try (Connection connection = DatabaseConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)
         ){
+
             ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
@@ -33,9 +33,11 @@ public class JdbcCurrencyDao {
                         resultSet.getString("fullname"),
                         resultSet.getString("sign")));
             }
+
         } catch (SQLException e) {
             throw new DatabaseConnectionException("Database is not responding");
         }
+
         return allCurrencies;
     }
 
@@ -46,6 +48,7 @@ public class JdbcCurrencyDao {
         try (Connection connection = DatabaseConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)
         ){
+
             preparedStatement.setString(1, code);
             ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -56,30 +59,36 @@ public class JdbcCurrencyDao {
                 currency.setSign(resultSet.getString("sign"));
                 return Optional.of(currency);
             }
+
         } catch (SQLException e) {
             throw new DatabaseConnectionException("Database is not responding");
         }
+
         return Optional.empty();
     }
 
     public void saveCurrency(Currency currency) {
         String sql = "INSERT INTO currencies (code, fullname, sign) VALUES (?,?,?)";
+
         try (Connection connection = DatabaseConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)
         ){
+
             preparedStatement.setString(1, currency.getCode());
             preparedStatement.setString(2, currency.getFullname());
             preparedStatement.setString(3, currency.getSign());
             preparedStatement.executeUpdate();
+
         } catch (SQLException e) {
             if (e instanceof SQLiteException) {
                 SQLiteException sqLiteException = (SQLiteException) e;
                 int resultCode = sqLiteException.getResultCode().code;
+
                 if (resultCode == SQLiteErrorCode.SQLITE_CONSTRAINT_UNIQUE.code) {
                     throw new ModelAlreadyExistsException(
-                            String.format("Currency '%s' already exists.", currency.getCode())
-                    );
+                            String.format("Currency '%s' already exists.", currency.getCode()));
                 }
+
             } else {
                 throw new DatabaseConnectionException("Database is not responding");
             }
