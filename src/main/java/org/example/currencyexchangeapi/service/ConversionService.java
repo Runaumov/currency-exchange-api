@@ -84,7 +84,7 @@ public class ConversionService {
                 BigDecimal currencyToBaseCurrencyRate = exchangeRateBase.get().getRate();
                 BigDecimal currencyToTargetCurrencyRate = exchangeRateTarget.get().getRate();
                 BigDecimal baseCurrencyToTargetCurrency = currencyToTargetCurrencyRate.divide(
-                        currencyToBaseCurrencyRate, 10, RoundingMode.HALF_UP);
+                        currencyToBaseCurrencyRate, 2, RoundingMode.HALF_UP);
 
                 ExchangeRate exchangeRate = new ExchangeRate(
                         exchangeRateBase.get().getTargetCurrency(),

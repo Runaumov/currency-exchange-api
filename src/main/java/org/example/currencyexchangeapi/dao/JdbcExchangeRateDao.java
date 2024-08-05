@@ -209,7 +209,8 @@ public class JdbcExchangeRateDao {
             int updatedRow = preparedStatement.executeUpdate();
 
             if (updatedRow == 0) {
-                throw new ModelNotFoundException(String.format("Exchange rate '%s'-'%s' not found in database and cannot be updated.",
+                throw new ModelNotFoundException(String.format("Exchange rate '%s'-'%s' not found in database and " +
+                                "cannot be updated.",
                         exchangeRate.getBaseCurrency().getCode(),
                         exchangeRate.getTargetCurrency().getCode()));
             }
