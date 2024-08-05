@@ -3,14 +3,12 @@ package org.example.currencyexchangeapi;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.example.currencyexchangeapi.exceptions.DatabaseConnectionException;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 
 public class DatabaseConnection {
 
-    private static final String DATABASE_URL =
-            "jdbc:sqlite:D:\\Javadev\\currency-exchange-api\\src\\main\\resources\\currencyExchange.db";
+    private static final String DATABASE_URL = "jdbc:sqlite::resource:CurrencyExchange.db";
     private static final HikariConfig config = new HikariConfig();
     private static final HikariDataSource ds;
 
@@ -31,4 +29,5 @@ public class DatabaseConnection {
             throw new DatabaseConnectionException("Failed to connect to the database");
         }
     }
+
 }

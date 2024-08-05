@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 
 @WebServlet("/exchange")
 public class ConversionServlet extends HttpServlet {
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override

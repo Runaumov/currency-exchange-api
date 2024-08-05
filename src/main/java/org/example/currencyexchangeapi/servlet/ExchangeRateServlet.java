@@ -14,9 +14,7 @@ import org.example.currencyexchangeapi.model.ExchangeRate;
 import org.example.currencyexchangeapi.service.ExchangeRateService;
 import org.example.currencyexchangeapi.utils.RequestValidator;
 import org.modelmapper.ModelMapper;
-
 import java.io.IOException;
-import java.math.BigDecimal;
 
 @WebServlet("/exchangeRate/*")
 public class ExchangeRateServlet extends HttpServlet {
@@ -38,6 +36,7 @@ public class ExchangeRateServlet extends HttpServlet {
                         baseCode, targetCode)));
 
         ResponseExchangeRateDto responseExchangeRateDto = modelMapper.map(exchangeRate, ResponseExchangeRateDto.class);
+
         objectMapper.writeValue(resp.getWriter(), responseExchangeRateDto);
     }
 
@@ -52,6 +51,7 @@ public class ExchangeRateServlet extends HttpServlet {
 
         ExchangeRateService exchangeRateService = new ExchangeRateService();
         ResponseExchangeRateDto responseExchangeRateDto = exchangeRateService.patchExchangeRate(requestExchangeRateDto);
+
         objectMapper.writeValue(resp.getWriter(), responseExchangeRateDto);
     }
 

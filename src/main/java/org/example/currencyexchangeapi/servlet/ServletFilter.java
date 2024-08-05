@@ -26,6 +26,7 @@ public class ServletFilter implements Filter {
         HttpServletResponse httpServletResponse = (HttpServletResponse) servletResponse;
         httpServletResponse.setContentType("application/json");
         httpServletResponse.setCharacterEncoding("UTF-8");
+
         try {
             filterChain.doFilter(servletRequest, servletResponse);
         } catch (DatabaseConnectionException e) {

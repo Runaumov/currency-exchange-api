@@ -13,7 +13,6 @@ import org.example.currencyexchangeapi.service.ExchangeRatesService;
 import org.example.currencyexchangeapi.utils.RequestValidator;
 import org.modelmapper.ModelMapper;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 

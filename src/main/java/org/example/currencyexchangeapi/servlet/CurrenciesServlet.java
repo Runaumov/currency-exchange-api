@@ -12,15 +12,15 @@ import org.example.currencyexchangeapi.exceptions.ModelNotFoundException;
 import org.example.currencyexchangeapi.model.Currency;
 import org.example.currencyexchangeapi.utils.RequestValidator;
 import org.modelmapper.ModelMapper;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 @WebServlet("/currencies")
 public class CurrenciesServlet extends HttpServlet {
-    private final ModelMapper modelMapper = new ModelMapper();
+
     private final JdbcCurrencyDao jdbcCurrencyDao = new JdbcCurrencyDao();
+    private final ModelMapper modelMapper = new ModelMapper();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
@@ -37,7 +37,6 @@ public class CurrenciesServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-
         String code = req.getParameter("code");
         String fullname = req.getParameter("name");
         String sign = req.getParameter("sign");
@@ -46,7 +45,6 @@ public class CurrenciesServlet extends HttpServlet {
         RequestValidator.validateRequestCurrencyDto(requestCurrencyDto);
 
         jdbcCurrencyDao.saveCurrency(modelMapper.map(requestCurrencyDto, Currency.class));
-
         Currency responseCurrency = jdbcCurrencyDao.findByCode(requestCurrencyDto.getCode()).orElseThrow(() ->
                 new ModelNotFoundException(String.format("Currency '%s' not found in database.", code)));
 

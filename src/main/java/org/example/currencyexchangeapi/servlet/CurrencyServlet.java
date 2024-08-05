@@ -11,18 +11,19 @@ import org.example.currencyexchangeapi.model.Currency;
 import org.example.currencyexchangeapi.utils.RequestValidator;
 import org.example.currencyexchangeapi.exceptions.ModelNotFoundException;
 import org.modelmapper.ModelMapper;
-
 import java.io.IOException;
 
 @WebServlet("/currency/*")
 public class CurrencyServlet extends HttpServlet {
-    private final ModelMapper modelMapper = new ModelMapper();
+
     private final JdbcCurrencyDao jdbcCurrencyDao = new JdbcCurrencyDao();
+    private final ModelMapper modelMapper = new ModelMapper();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String code = req.getPathInfo().replaceAll("/", "");
+
         RequestValidator.validateCurrencyCode(code);
 
         Currency currency = jdbcCurrencyDao.findByCode(code).orElseThrow(() ->

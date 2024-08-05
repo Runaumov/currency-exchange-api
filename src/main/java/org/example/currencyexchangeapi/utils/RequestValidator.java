@@ -4,7 +4,6 @@ import org.example.currencyexchangeapi.dto.RequestConversionDto;
 import org.example.currencyexchangeapi.dto.RequestCurrencyDto;
 import org.example.currencyexchangeapi.dto.RequestExchangeRateDto;
 import org.example.currencyexchangeapi.exceptions.InvalidRequestException;
-import java.math.BigDecimal;
 import java.util.regex.Pattern;
 
 public class RequestValidator {
@@ -32,12 +31,6 @@ public class RequestValidator {
         validateRateAndAmount(requestConversionDto.getAmount());
     }
 
-    private static void validateRateAndAmount(String rateAndAmount) {
-        if (rateAndAmount == null || !RATE_AND_AMOUNT_PATTERN.matcher(rateAndAmount).matches()) {
-            throw new InvalidRequestException("Invalid rate or amount");
-        }
-    }
-
     public static void validateCurrencyCode(String code) {
         if (code == null || !CURRENCY_CODE_PATTERN.matcher(code).matches()) {
             throw new InvalidRequestException("Invalid currency code");
@@ -53,6 +46,12 @@ public class RequestValidator {
     public static void validateCurrencySign(String sign) {
         if (sign == null || !CURRENCY_SIGN_PATTERN.matcher(sign).matches()) {
             throw new InvalidRequestException("Invalid sign name");
+        }
+    }
+
+    private static void validateRateAndAmount(String rateAndAmount) {
+        if (rateAndAmount == null || !RATE_AND_AMOUNT_PATTERN.matcher(rateAndAmount).matches()) {
+            throw new InvalidRequestException("Invalid rate or amount");
         }
     }
 
