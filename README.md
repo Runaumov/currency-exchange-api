@@ -14,4 +14,12 @@
 - Docker
 
 ## Колекция запросов
-- `GET` /currencies
+- Получение списка валют: `GET` /currencies
+- Получение конкретной валюты: `GET` /currencies/USD
+- Добавление новой валюты в базу: `POST` /currencies
+  Данные передаются в теле запроса в виде полей формы (x-www-form-urlencoded). Поля формы - name, code, sign
+- `GET` /exchangeRates
+- `GET` /exchangeRate/USDRUB
+- `POST` /exchangeRates
+- `PATCH` /exchangeRates/USDRUB
+- `GET` /exchange?from=BASE_CURRENCY_CODE&to=TARGET_CURRENCY_CODE&amount=$AMOUNT
