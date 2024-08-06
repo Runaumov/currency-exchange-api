@@ -11,7 +11,11 @@ import org.example.currencyexchangeapi.exceptions.ModelAlreadyExistsException;
 import org.example.currencyexchangeapi.exceptions.ModelNotFoundException;
 import java.io.IOException;
 
-@WebFilter("/*")
+@WebFilter(value = {
+        "/currencies", "/currency/*",
+        "/exchangeRates", "/exchangeRate/*",
+        "/exchange"
+})
 public class ServletFilter implements Filter {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
