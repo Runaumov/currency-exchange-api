@@ -19,7 +19,7 @@
 - `GET` /currencies/USD
 Получение конкретной валюты.
 - `POST` /currencies
-Добавление новой валюты в базу. Данные передаются в теле запроса в виде полей формы (x-www-form-urlencoded). Поля формы - name, code, sign
+Добавление новой валюты в базу. Данные передаются в теле запроса в виде полей формы (x-www-form-urlencoded). Поля формы - name, code, sign.
 - `GET` /exchangeRates
 - `GET` /exchangeRate/USDRUB
 - `POST` /exchangeRates
