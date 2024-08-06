@@ -32,9 +32,13 @@
 Расчёт перевода определённого количества средств из одной валюты в другую. Пример запроса - `GET` /exchange?from=USD&to=AUD&amount=10.
 
 ## Запуск приложения
-- С помощью docker:
-- - Соберите контейнер:<br>
-    `docker build -t currency-exchange-api .`
-  - Запустите контейнер:<br>
-    `docker run -p 8080:8080 currency-exchange-api`
+- С помощью Docker:
+  - Соберите контейнер:
+    ```bash
+    docker build -t currency-exchange-api .
+    ```
+  - Запустите контейнер:
+    ```bash
+    docker run -p 8080:8080 currency-exchange-api
+    ```
   - Адрес приложения: `http://localhost:8080/currency_exchange_api/`
