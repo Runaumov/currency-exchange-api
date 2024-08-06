@@ -45,14 +45,14 @@ public class JdbcExchangeRateDao {
                 exchangeRates.add(
                         new ExchangeRate(resultSet.getLong("id"),
                             new Currency(resultSet.getLong("bc_id"),
+                                    resultSet.getString("bc_code"),
                                 resultSet.getString("bc_name"),
-                                resultSet.getString("bc_code"),
                                 resultSet.getString("bc_sign")
                         ),
                             new Currency(
                                 resultSet.getLong("tc_id"),
-                                resultSet.getString("tc_name"),
                                 resultSet.getString("tc_code"),
+                                resultSet.getString("tc_name"),
                                 resultSet.getString("tc_sign")),
                         resultSet.getBigDecimal("rate")
                 ));
