@@ -14,4 +14,4 @@
 - Docker
 
 ## Колекция запросов
-- 'GET' /currencies
+- `GET` /currencies
