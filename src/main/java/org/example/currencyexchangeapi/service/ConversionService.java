@@ -25,7 +25,7 @@ public class ConversionService {
         )));
 
         BigDecimal amount = new BigDecimal(requestConversionDto.getAmount());
-        BigDecimal convertedAmount = exchangeRate.getRate().multiply(amount).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal convertedAmount = exchangeRate.getRate().multiply(amount).setScale(2, RoundingMode.HALF_EVEN);
 
         ResponseConversionDto responseConversionDto = new ResponseConversionDto(
                 exchangeRate.getBaseCurrency(),
@@ -63,7 +63,7 @@ public class ConversionService {
                 requestConversionDto.getBaseCurrencyCode());
 
         if (exchangeRate.isPresent()) {
-            BigDecimal newAmount = BigDecimal.ONE.divide(exchangeRate.get().getRate(), 2, RoundingMode.HALF_UP);
+            BigDecimal newAmount = BigDecimal.ONE.divide(exchangeRate.get().getRate(), 10, RoundingMode.HALF_EVEN);
             exchangeRate.get().setRate(newAmount);
             return exchangeRate;
         }
@@ -84,7 +84,7 @@ public class ConversionService {
                 BigDecimal currencyToBaseCurrencyRate = exchangeRateBase.get().getRate();
                 BigDecimal currencyToTargetCurrencyRate = exchangeRateTarget.get().getRate();
                 BigDecimal baseCurrencyToTargetCurrency = currencyToTargetCurrencyRate.divide(
-                        currencyToBaseCurrencyRate, 2, RoundingMode.HALF_UP);
+                        currencyToBaseCurrencyRate, 10, RoundingMode.HALF_EVEN);
 
                 ExchangeRate exchangeRate = new ExchangeRate(
                         exchangeRateBase.get().getTargetCurrency(),
